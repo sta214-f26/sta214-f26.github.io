@@ -16,7 +16,7 @@ In this class, we will use R and RStudio for data analysis, visualization, and r
     
     c. Linux: Click **Download R for Linux**, then select your distro and follow the installation instructions (you will install via the command line).
     
-2. Install RStudio: go to [this link](https://posit.co/download/rstudio-desktop/), and scroll down to "All Installers and Tarballs". Download the version corresponding to your computer's OS.
+2. Install RStudio: go to [this link](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads), and download the version corresponding to your computer's OS.
 3. Open RStudio (the icon is a white R in a blue circle). You should see something like the following:
 ![](rstudio_image.jpeg)
 4. We'll get acquainted with RStudio in class. For now, let's just check that it works. In the Console, next to the `>`, type `16 * 7` and hit **Enter** (or **return** on Mac). You should get `112`.
