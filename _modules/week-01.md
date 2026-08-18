@@ -1,0 +1,31 @@
+---
+title: Binary data and logistic regression
+---
+
+August 24
+: Welcome to STA 214, EDA + logistic regression
+  : [slides](https://sta214-f26.github.io/slides/lecture_1.pdf), [warmup](https://sta214-f26.github.io/class_activities/ca_01_warmup.pdf), [class activity](https://sta214-f26.github.io/class_activities/ca_01.pdf)
+
+: **Homework 1 released**{: .label .label-yellow }
+  : [HW 1](https://sta214-f26.github.io/homework/HW1.pdf)
+
+: Install R and RStudio 
+  : [R and RStudio setup](https://sta214-f26.github.io/resources/r_installation/)
+  
+: Course codebook
+  : [Course codebook](https://sta214-f26.github.io/resources/codebook.html)
+  
+: Reading for next class
+  : Beyond MLR [3.3.1](https://bookdown.org/roback/bookdown-BeyondMLR/ch-distthry.html#sec-binary), [6.2](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#introduction-to-logistic-regression)
+
+August 26
+: Parametric models and logistic regression
+
+: Reading for next class
+  : Beyond MLR [6.4](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#case-study-soccer-goalkeepers), [6.6](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#linear-least-squares-vs.-binomial-regression)
+  
+August 28
+: Interpreting logistic regression
+
+: Reading for next class
+  : Beyond MLR [6.7.1-6.7.3](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#case-study-trying-to-lose-weight), [2.2 - 2.4](https://bookdown.org/roback/bookdown-BeyondMLR/ch-beyondmost.html#case-study-does-sex-run-in-families)
