@@ -32,7 +32,9 @@ STA 214 Homework 1\\
 
 \noindent Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks. \textit{If a question requires code, you will not receive credit if no code is provided.}\\
 
-\noindent \textbf{Submission:} When you have completed the assignment, knit your homework to HTML and submit on Canvas.
+\noindent \textbf{Collaborators and AI statement:} At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.\\
+
+\noindent \textbf{Submission:} When you have completed the assignment, render your homework to HTML and submit on Canvas.
 
 \section*{Data}
 
@@ -59,7 +61,6 @@ grad_app <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
 
 \noindent Copy the command to load the data into the setup chunk of your Quarto file, and run it.
 
-\newpage
 
 \section{EDA review}
 
@@ -108,7 +109,7 @@ In STA 112, you learned tools for \textit{exploratory data analysis} (EDA), in w
 
 \end{enumerate}
 
-\newpage
+\bigskip
 
 \section{Logistic regression modeling}
 
@@ -126,9 +127,7 @@ In this portion of the assignment, we will fit and use a logistic regression mod
 
 \item In R, fit your logistic regression model from (b), and report the fitted coefficients.
 
-\item Interpret the estimated slope and intercept in terms of the log odds.
-
-\item Interpret the estimated slope and intercept in terms of the odds.
+\item Interpret the estimated slope and intercept (in terms of the odds).
 \end{enumerate}
 
 \item[6.] From question 5, our fitted model is

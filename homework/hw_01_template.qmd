@@ -9,7 +9,7 @@ editor: source
 author: "Your name"
 ---
 
-**Collaborators:** (leave blank if none)
+**Collaborators and AI statement:**
 
 **Instructions:** 
 
