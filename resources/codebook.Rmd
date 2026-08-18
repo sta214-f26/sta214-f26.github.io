@@ -230,7 +230,7 @@ We can then look at the description of the `penguins` data provided by the packa
 ```{r, include=F}
 library(palmerpenguins)
 library(tidyverse)
-titanic <- read_csv("https://sta214-f22.github.io/labs/Titanic.csv")
+titanic <- read_csv("https://sta214-f26.github.io/homework/Titanic.csv")
 ```
 
 ## Data size and variables
@@ -840,10 +840,13 @@ To better assess whether our model is a good fit, we can make a **lineup** of qu
 
 Here is a lineup with 20 residual plots for a logistic regression model of Titanic survival on Fare:
 
-```{r fig.width=6, fig.height=6}
-library(regressinator)
+```{r, include=F}
+set.seed(692345) # setting a seed for reproducibility
+```
 
-set.seed(692344) # setting a seed for reproducibility
+
+```{r fig.width=8, fig.height=6}
+library(regressinator)
 
 m1 <- glm(Survived ~ Fare, data = titanic, family = binomial)
 
@@ -861,18 +864,36 @@ model_lineup(m1, fn = qresid_fn, nsim = 20) |>
   theme_bw()
 ```
 
+To me, none of the plots particularly stand out as different than the others, and I'm not able to easily identify which plot corresponds to the original data. If I had to guess, I would choose plot 1, plot 5, or plot 14, but I wouldn't be confident in my guess. This suggests that the model assumptions might be reasonable.
 
+If we want to check which of the plots corresponds to the original data, we can use the `decrypt` function from the `regressinator` package. Copy the `decrypt` message from the output, and run it in the console:
 
 ```{r}
-library(regressinator)
+decrypt("QUg2 qFyF Rx 8tLRyRtx KK")
+```
 
+Note that we will have to change the code if we fit a different model. For example, if we wanted to use sqrt(Fare) instead:
+
+```{r, include=F}
+set.seed(65)
+```
+
+
+```{r, fig.width=8, fig.height=6}
+# change the original model definition
 m2 <- glm(Survived ~ sqrt(Fare), data = titanic, family = binomial)
 
+# function to extract residuals needs to change
+# The variable to plot on the x-axis is now sqrt(Fare)
+# Since sqrt(Fare) includes special characters, need to put 
+# the tick marks around the variable name
 qresid_fn <- function(f){
   data.frame(resid = statmod::qresid(f),
              x = model.frame(f)$`sqrt(Fare)`)
 }
 
+# first argument is now m2, instead of m1
+# Also need to change x-axis label (in labs)
 model_lineup(m2, fn = qresid_fn, nsim = 20) |> 
   ggplot(aes(x = x, y = resid)) +
   geom_point(size = 0.5) +
@@ -880,6 +901,12 @@ model_lineup(m2, fn = qresid_fn, nsim = 20) |>
   facet_wrap(vars(.sample)) +
   labs(x = "sqrt(Fare)", y = "Residual") +
   theme_bw()
+```
+
+As above, I can't tell which plot corresponds to the true data. It turns out it is plot 19:
+
+```{r}
+decrypt("QUg2 qFyF Rx 8tLRyRtx Zj")
 ```
 
 
@@ -1379,7 +1406,7 @@ qresid_zeroinfl <- function(zip_m){
 ### Example
 
 ```{r, include=F}
-heart_data <- read_csv("https://sta214-f22.github.io/class_activities/framingham.csv")
+heart_data <- read_csv("https://sta214-f26.github.io/class_activities/framingham.csv")
 
 heart_data <- heart_data |>
   drop_na(male, age, education, diabetes, cigsPerDay) |>
