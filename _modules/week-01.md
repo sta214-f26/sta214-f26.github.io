@@ -20,6 +20,7 @@ August 24
 
 August 26
 : Parametric models and logistic regression
+  : [slides](https://sta214-f26.github.io/slides/lecture_2.pdf), [class activity](https://sta214-f26.github.io/class_activities/ca_02.pdf)
 
 : Reading for next class
   : Beyond MLR [6.4](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#case-study-soccer-goalkeepers), [6.6](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#linear-least-squares-vs.-binomial-regression)
