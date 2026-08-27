@@ -34,23 +34,6 @@ $Age_i =$ age (in years)
 
 ---
 
-### Where did the $\varepsilon$ term go?
-
-.large[
-Linear regression, written two ways:
-
-**Option 1:** 
-
-$$Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \hspace{1cm} \varepsilon_i \sim N(0, \sigma^2)$$
-
-**Option 2:**
-
-$$Y_i \sim N(\mu_i, \sigma^2)$$
-$$\mu_i = \beta_0 + \beta_1 X_i$$
-]
-
----
-
 ### Fitting the logistic regression model
 
 .large[
@@ -105,15 +88,7 @@ summary(m1)
 
 ---
 
-### Activity 1
-
-.large[
-Work on the activity (handout) with a neighbor, then we will discuss as a class.
-]
-
----
-
-### Activity
+### Last time: Activity
 
 .large[
 $$\hspace{1cm} \log \left( \dfrac{\widehat{\pi}_i}{1 - \widehat{\pi}_i} \right) = -2.45 + 0.22 \ Age_i$$
@@ -159,7 +134,7 @@ Predicted *probability* of dengue for a 5 year old patient?
 
 ---
 
-### Activity 2
+### Activity
 
 .large[
 Work on the activity (handout) with a neighbor, then we will discuss as a class.
@@ -211,8 +186,7 @@ $$\hspace{1cm} \log \left( \dfrac{\widehat{\pi}_i}{1 - \widehat{\pi}_i} \right) 
 
 **Slope:**
 
-* A one-year increase in age is associated with an increase in the *log odds* of dengue of 0.22.
-* A one-year increase in age is associated with an increase in the *odds* of dengue by a *factor* of $e^{0.22} = 1.25$.
+* A one-year increase in age is associated with an increase of 25% in the *odds* of dengue.
 
 **Intercept:**
 ]
@@ -226,12 +200,10 @@ $$\hspace{1cm} \log \left( \dfrac{\widehat{\pi}_i}{1 - \widehat{\pi}_i} \right) 
 
 **Slope:**
 
-* A one-year increase in age is associated with an increase in the *log odds* of dengue of 0.22.
-* A one-year increase in age is associated with an increase in the *odds* of dengue by a *factor* of $e^{0.22} = 1.25$.
+* A one-year increase in age is associated with an increase of 25% in the *odds* of dengue.
 
 **Intercept:**
 
-* when age is 0, the estimated log odds of dengue is $-2.45$
 * when age is 0, the estimated odds of dengue is $e^{-2.45} = 0.086$
 ]
 
@@ -277,6 +249,22 @@ How should I interpret the coefficient on abdominal pain?
 
 ---
 
+### Interpretation
+
+.large[
+$$\hspace{1cm} \log \left( \dfrac{\widehat{\pi}_i}{1 - \widehat{\pi}_i} \right) = -2.45 + 0.22 \ Age_i$$
+
+**Slope:**
+
+* A one-year increase in age is associated with an increase of 25% in the *odds* of dengue.
+
+.question[
+Can we interpet the slope in terms of the the *probability* (rather than the odds or log odds)?
+]
+]
+
+---
+
 ### For next week
 
 .large[
@@ -285,7 +273,6 @@ How should I interpret the coefficient on abdominal pain?
 * sections 6.7.1 - 6.7.3
 * sections 2.2 - 2.4
 
-**Class on Monday:** lab day (most of the class period to work on HW 1)
 ]
 
 

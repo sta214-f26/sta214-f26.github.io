@@ -27,6 +27,7 @@ August 26
   
 August 28
 : Interpreting logistic regression
+  : [slides](https://sta214-f26.github.io/slides/lecture_3.pdf), [class activity](https://sta214-f26.github.io/class_activities/ca_03.pdf)
 
 : Reading for next class
   : Beyond MLR [6.7.1-6.7.3](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#case-study-trying-to-lose-weight), [2.2 - 2.4](https://bookdown.org/roback/bookdown-BeyondMLR/ch-beyondmost.html#case-study-does-sex-run-in-families)
