@@ -1,5 +1,5 @@
 ---
 name: Ephrata Getachew
 role: TA
-photo: ephrata.jpg
+photo: ephrata_2.png
 ---
