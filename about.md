@@ -179,7 +179,7 @@ There will be one project in this course. Further instructions and grading infor
 
 We will have two in-class exams and one final exam.
 
-**Exam 1:** October 9 (tentative), in class
+**Exam 1:** October 7 (tentative), in class
 
 **Exam 2:** November 20 (tentative), in class
 
