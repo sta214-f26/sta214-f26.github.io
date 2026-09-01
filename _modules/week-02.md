@@ -11,12 +11,13 @@ August 31
 
 September 2
 : Maximum likelihood estimation
-  
-: Reading for next class
-  : Beyond MLR [6.5.2](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#exploratory-analyses)
+  : [slides](https://sta214-f26.github.io/slides/lecture_5.pdf), [class activity](https://sta214-f26.github.io/class_activities/ca_05.pdf)
   
 September 4
-: Assumptions and diagnostics
+: Maximum likelihood estimation
+
+: Reading for next class
+  : Beyond MLR [6.5.2](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#exploratory-analyses)
   
 : **Homework 2 released**{: .label .label-yellow }
   

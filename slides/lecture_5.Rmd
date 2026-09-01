@@ -1,0 +1,246 @@
+---
+author: "Ciaran Evans"
+title: Maximum likelihood estimation
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Recap
+
+.large[
+**Definition:** The *likelihood* $L(Model) = P(Data | Model)$ of a model is the probability of the observed data, given that we assume a certain model and certain values for the parameters that define that model.
+]
+
+.large[
+Coin example: flip a coin 5 times, with $\pi = P(Heads)$
+* Model: $Y_i \sim Bernoulli(\pi)$, and $\widehat{\pi} = 0.9$
+* Data: $y_1,...,y_5 = T, T, T, T, H$
+* Likelihood: $L(0.9) = P(y_1,...y_5 | \pi = 0.9) = 0.00009$
+]
+
+---
+
+### Recap
+
+.large[
+**Maximum likelihood estimation:** pick the parameter estimate that maximizes the likelihood.
+
+Coin example: flip a coin 5 times, with $\pi = P(Heads)$
+
+* Observed data: T, T, T, T, H
+* Likelihood: $L(\pi) = (1 - \pi)^4(\pi)$
+* Choose $\widehat{\pi}$ as value of $\pi$ that maximizes $L(\pi)$
+]
+
+---
+
+### Recap
+
+.large[
+**Maximum likelihood estimation:** pick the parameter estimate that maximizes the likelihood.
+
+Coin example: flip a coin 5 times, with $\pi = P(Heads)$
+
+* Observed data: T, T, T, T, H
+* Likelihood: $L(\pi) = (1 - \pi)^4(\pi)$
+* Choose $\widehat{\pi}$ as value of $\pi$ that maximizes $L(\pi)$
+
+.question[
+How do I maximize functions?
+]
+]
+
+---
+
+### Maximum likelihood estimation with calculus
+
+.large[
+**Maximum likelihood estimation:** pick the parameter estimate that maximizes the likelihood.
+
+Coin example: flip a coin 5 times, with $\pi = P(Heads)$
+
+* Observed data: T, T, T, T, H
+* Likelihood: $L(\pi) = (1 - \pi)^4(\pi)$
+* Choose $\widehat{\pi}$ as value of $\pi$ that maximizes $L(\pi)$
+
+**Step 1:** Write down the likelihood
+
+$$L(\pi) = (1 - \pi)^4(\pi)$$
+]
+
+---
+
+### Maximum likelihood estimation with calculus
+
+.large[
+**Maximum likelihood estimation:** pick the parameter estimate that maximizes the likelihood.
+
+Coin example: flip a coin 5 times, with $\pi = P(Heads)$
+
+* Observed data: T, T, T, T, H
+* Likelihood: $L(\pi) = (1 - \pi)^4(\pi)$
+* Choose $\widehat{\pi}$ as value of $\pi$ that maximizes $L(\pi)$
+
+**Step 2:** Take the log
+
+$$\log L(\pi) = \hspace{6cm}$$
+
+
+]
+
+---
+
+### Maximum likelihood estimation with calculus
+
+.large[
+**Maximum likelihood estimation:** pick the parameter estimate that maximizes the likelihood.
+
+Coin example: flip a coin 5 times, with $\pi = P(Heads)$
+
+* Observed data: T, T, T, T, H
+* Likelihood: $L(\pi) = (1 - \pi)^4(\pi)$
+* Choose $\widehat{\pi}$ as value of $\pi$ that maximizes $L(\pi)$
+
+**Step 3:** maximize
+
+$$\log L(\pi) = 4 \log(1 - \pi) + \log(\pi)$$
+
+.question[
+How do we find where maxima/minima occur for a function?
+]
+]
+
+---
+
+### Maximum likelihood estimation with calculus
+
+.large[
+* Observed data: T, T, T, T, H
+* Likelihood: $L(\pi) = (1 - \pi)^4(\pi)$
+* Choose $\widehat{\pi}$ as value of $\pi$ that maximizes $L(\pi)$
+
+**Step 3:** maximize -- take first derivative and set equal to 0
+
+$$\log L(\pi) = 4 \log(1 - \pi) + \log(\pi)$$
+
+$$\dfrac{d}{d \pi} \log L(\pi) = \hspace{6cm}$$
+]
+
+---
+
+### Class activity
+
+.large[
+Work on the activity (handout) with a neighbor, then we will
+discuss as a class
+]
+
+---
+
+### Class activity
+
+.large[
+* $P(Y_i = 0) = \pi_0$
+* $P(Y_i = -1) = 2 \pi_0$
+* $P(Y_i = 1) = 1 - 3 \pi_0$
+
+Observe data $-1, -1, 0, 1, 0, -1$.
+
+$L(\pi_0) = \ ?$
+]
+
+---
+
+### Class activity
+
+.large[
+.center[
+$\log L(\pi_0) = 3 \log(2) + 3 \log(\pi_0) + 2 \log( \pi_0) + \log(1 - 3 \pi_0)$
+
+$\dfrac{d}{d \pi_0} \log L(\pi_0) =$
+]
+]
+
+---
+
+### Maximum likelihood in more generality
+
+.large[
+Suppose that $Y_i \sim Bernoulli(\pi)$. We observe $n$ observations $Y_1,...,Y_n$ and want to estimate $\pi$.
+]
+
+.large[
+**Step 1:** Write down the likelihood
+
+* Let $k$ be the number of times $Y_i = 1$ in the data
+
+.center[
+$L(\pi) = \hspace{6cm}$
+]
+
+]
+
+---
+
+### Maximum likelihood in more generality
+
+.large[
+**Step 1:** Write down the likelihood
+
+.center[
+$L(\pi) = \pi^k(1 - \pi)^{n-k}$
+]
+
+**Step 2:** Take the log
+]
+
+.large[
+$\log L(\pi) = \hspace{6cm}$
+]
+
+---
+
+### Maximum likelihood in more generality
+
+.large[
+**Step 3:** take the first derivative, and set = 0
+.center[
+$\log L(\pi) = k \log (\pi) + (n - k) \log (1 - \pi)$
+]
+]
+
+.large[
+$\dfrac{d}{d \pi} \log L(\pi) = \hspace{5cm}$
+]
+
+---
+
+### Maximum likelihood in more generality
+
+.large[
+So our maximum likelihood estimate is $\widehat{\pi} = \dfrac{k}{n}$, the sample proportion
+
+* Example data: T, T, T, T, H
+* This implies that $\widehat{\pi} = \dfrac{1}{5} = 0.2$
+]
+
+---
+
+### Another way of viewing the problem
+
+.large[
+Suppose that $Y_i \sim Bernoulli(\pi)$. We observe $n$ independent observations $Y_1,...,Y_n$ and want to estimate $\pi$.
+]
+
+
+
+
+
