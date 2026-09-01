@@ -18,7 +18,7 @@ Suppose we have a variable $Y$ that can take **three** possible outcomes: $Y = -
 * $P(Y_i = -1) = 2 \pi_0$
 * $P(Y_i = 1) = 1 - 3 \pi_0$
 
-where the parameter $\pi_0$ is unknown. We observe data $-1, -1, 0, 1, 0, -1$, and we want to estimate $\pi_0$ from the data.
+where the parameter $\pi_0$ is unknown. We observe (independent) data $-1, -1, 0, 1, 0, -1$, and we want to estimate $\pi_0$ from the data.
 
 # Questions
 
