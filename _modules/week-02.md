@@ -24,3 +24,4 @@ September 4
   : [HW 2](https://sta214-f26.github.io/homework/HW2.pdf)
   
 : **Project part 1 released**{: .label .label-green }
+  : [Part 1](https://sta214-f26.github.io/projects/project_1_1.html)

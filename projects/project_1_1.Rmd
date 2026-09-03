@@ -7,9 +7,9 @@ output:
 link-citations: yes
 ---
 
-**Due dates:** Friday, September 19 at 10pm on Canvas.
+**Due dates:** Friday, September 18 at 11:59pm on Canvas.
 
-**Submission:** A template file is provided, with a rough outline: [project_1_1_template.qmd](https://sta214-f25.github.io/projects/project_1_1_template.qmd)
+**Submission:** A template file is provided, with a rough outline: [project_1_1_template.qmd](https://sta214-f26.github.io/projects/project_1_1_template.qmd)
 
 Once you have completed the report, submit *both* your 
 rendered HTML file and the Quarto file to Canvas.
@@ -20,10 +20,12 @@ This semester, you will complete a project in which you use logistic regression 
 
 This project will be broken into several different parts; I will provide feedback on each part.
 
-In this first part, your task is to identify a research question and a dataset that allows you to address that research question. You will then use exploratory data analysis (EDA) to explore the data and variables. Subsequent parts of the project will involve using logistic regression to answer your research question, and then present your results in a written report and an oral interview.
+* **Part 1** (20 pts): identifying a research question and dataset; EDA to explore the data and variables.
+* **Part 2** (35 pts): further EDA; model fitting and diagnostics; inference.
+* **Part 3** (45 pts): final report, combining work from parts 1 and 2, and some additional analysis and writing. Also incorporating any changes based on feedback to first two parts.
 
 
-# Your task in Part I
+# Your task in Part 1
 
 For the first part of the project, you will identify a research question and a dataset to address that question, perform exploratory data analysis, and write up your results. You will submit two documents on Canvas for part 1:
 
@@ -36,14 +38,13 @@ includes warnings and other stray code output – hide it all.
   * The goal is that a person who reads your report, and wants to
 replicate your results, could look at your .qmd file and completely reproduce the results and figures in the rendered report.
 
-
-Your written report for part 1 will contain three sections: Research question, Data summary, Univariate EDA, and Multivariate EDA. Your goal is to create any visualizations necessary to exploring the data before fitting a model.
+Your written report for part 1 will contain four sections: Research question, Data summary, Univariate EDA, and Multivariate EDA. Your goal is to create any visualizations necessary to exploring the data before fitting a model.
 
 There is no minimum or maximum length required. However, your analysis should be thorough, with your report addressing the research question, and containing all the elements described below.
 
 ### Research question and data
 
-Come up with a research question that you can answer with data, and find a dataset that allows you to tackle this research question. 
+Come up with a research question that you can answer with data, and find a dataset that allows you to tackle this research question. Provide the questions you want to answer and a citation for the source of the data you will use.
 
 (You may not use any of the datasets we have worked with in class).
 
@@ -65,7 +66,7 @@ Write 1-2 paragraphs which:
 
 ### Univariate EDA
 
-Choose at least **3** variables that are relevant to the research questions. For each variable: make a plot, calculate any appropriate summary statistics, and discuss the distribution in 2–3 sentences. Make sure to add a title and good labels to each plot. Plots and summary statistics depend on the type of variable.
+Choose at least **3** of your available variables that are relevant to the research questions. For each variable: make a plot, calculate any appropriate summary statistics, and discuss the distribution in 2–3 sentences. Make sure to add a title and good labels to each plot. Plots and summary statistics depend on the type of variable.
 
 ### Multivariate EDA
 
@@ -213,4 +214,3 @@ Here are some examples of writing math, which you can adapt:
   * Each figure included in the report is discussed in your writing, and referred to by its figure number
 * Submission:
   * Submit *both* the rendered HMTL and the .qmd file to Canvas
-  * Deadline is Friday, September 19 at 10pm
