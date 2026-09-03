@@ -15,6 +15,7 @@ September 2
   
 September 4
 : Maximum likelihood estimation
+  : [slides](https://sta214-f26.github.io/slides/lecture_6.pdf), [activity 1](https://sta214-f26.github.io/class_activities/ca_06.pdf), [activity 2](https://sta214-f26.github.io/class_activities/ca_06_2.html)
 
 : Reading for next class
   : Beyond MLR [6.5.2](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#exploratory-analyses)

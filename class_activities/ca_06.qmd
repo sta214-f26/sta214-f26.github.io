@@ -1,0 +1,32 @@
+---
+title: "Class activity: maximum likelihood estimation"
+format: pdf
+editor: source
+---
+
+\vspace{-2.5cm}
+
+**Group members:**
+
+**Instructions:** Work with a neighbor on the following activity. I will collect the handout at the end of class, and it will be part of your class participation grade. You will be graded only on effort -- it is ok if you don't finish all the questions, or get them all correct.
+
+## Maximum likelihood estimation
+
+Suppose we have a random variable $Y$, which can take on values $y = 1, 2, 3, 4,...$ (i.e., any positive integer). The probability of each outcome does not depend on any explanatory variables, and we are told that
+$$P(Y = y | \pi) = (1 - \pi)^{y-1} \pi$$
+where $0 \leq \pi \leq 1$. So, $P(Y = 1|\pi) = \pi$, $P(Y = 2|\pi) = (1 - \pi)\pi$, etc. And for an arbitrary observation $Y_i$, we have $P(Y_i|\pi) = (1 - \pi)^{Y_i - 1} \pi$.
+
+We don't know $\pi$, but we get $n$ independent observations $Y_1,...,Y_n$. We will use the method of maximum likelihood to estimate $\pi$.
+
+# Questions
+
+
+1. Using independence, the likelihood is defined as 
+$$L(\pi) = P(Y_1|\pi)P(Y_2|\pi) \cdots P(Y_n|\pi) = \prod \limits_{i=1}^n P(Y_i | \pi)$$
+Show that 
+$$L(\pi) = (1 - \pi)^{\sum \limits_{i=1}^n(Y_i - 1)}\pi^n = (1 - \pi)^{\sum \limits_{i=1}^nY_i - n}\pi^n$$
+
+\newpage
+
+2. Using calculus (take the log and differentiate the log-likelihood), show that the maximum likelihood estimator is $\widehat{\pi} = \dfrac{n}{\sum \limits_{i=1}^n Y_i}$.
+
