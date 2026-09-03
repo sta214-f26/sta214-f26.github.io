@@ -22,15 +22,17 @@ STA 214 Homework 2\\
 \vspace{5mm}
 \end{center}
 
-\noindent \textbf{Due:} Friday, September 12, 10:00pm on Canvas.\\ 
+\noindent \textbf{Due:} Friday, September 11, 11:59pm on Canvas.\\ 
 
 \noindent \textbf{Instructions:} There are two parts to this assignment. Part I is practice with logistic regression,  and Part II is practice with maximum likelihood estimation.\\
 
 \noindent \textbf{Getting started:} Begin by downloading the HW2 template from the course website:\\
 
-\url{https://sta214-f25.github.io/homework/hw_02_template.qmd}\\
+\url{https://sta214-f26.github.io/homework/hw_02_template.qmd}\\
 
 \noindent Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks. \textit{If a question requires code, you will not receive credit if no code is provided.}\\
+
+\noindent \textbf{Collaborators and AI statement:} At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.\\
 
 \noindent \textbf{Submission:} When you have completed the assignment, render your homework to HTML and submit on Canvas. For Part II, you may submit a separate scan of your written work, if you prefer.
 
@@ -64,7 +66,7 @@ The RMS Titanic was a huge, luxury passenger liner designed and built in the ear
 The \verb;titanic; data can be loaded into R with the following command:
 
 \begin{verbatim}
-titanic <- read.csv("https://sta214-f25.github.io/homework/Titanic.csv")
+titanic <- read.csv("https://sta214-f26.github.io/homework/Titanic.csv")
 \end{verbatim}
 
 \noindent Here \texttt{read.csv} is a function that imports data from a CSV file. We can pass \texttt{read.csv} either a local path on our computer, or a URL -- in this case, we use the URL where the data is stored online. We have called the data \verb;titanic; in R.\\
@@ -75,7 +77,7 @@ titanic <- read.csv("https://sta214-f25.github.io/homework/Titanic.csv")
 
 \section{Logistic regression}
 
-In the first part of the assignment, we will fit a logistic regression model to the Titanic data. If you get stuck, remember that the course codebook may be helpful: \url{https://sta214-f25.github.io/resources/codebook.html} 
+In the first part of the assignment, we will fit a logistic regression model to the Titanic data. If you get stuck, remember that the course codebook may be helpful: \url{https://sta214-f26.github.io/resources/codebook.html} 
 
 \begin{enumerate}
 \item Before we fit any models, we need to do a bit of data exploration. To keep this assignment manageable, we will only do the first few steps here, but a full analysis would require additional EDA.
@@ -91,13 +93,11 @@ In the first part of the assignment, we will fit a logistic regression model to 
 \item Next, we want to fit a logistic regression model to predict the probability that a patient survives the disaster. For this question, use passenger class, sex, and age as the explanatory variables.
 
 \begin{enumerate}
-\item Write down the population logistic regression model, making sure to include both the random and systematic components. Use proper notation and include all subscripts. (See ``writing math in Quarto and R Markdown'' in the course codebook, \url{https://sta214-f25.github.io/resources/codebook.html}) Note: passenger class is a categorical variable with more than two levels! 
+\item Write down the population logistic regression model, making sure to include both the random and systematic components. Use proper notation and include all subscripts. (See ``writing math in Quarto and R Markdown'' in the course codebook, \url{https://sta214-f26.github.io/resources/codebook.html}) \textbf{Note:} passenger class is a categorical variable with more than two levels, but is recorded as a number in the data. Use \texttt{as.factor()} to convert passenger class into a categorical variable.
 
-\item In R, fit your logistic regression model, and write down the equation of the fitted model. (See ``writing math in Quarto and R Markdown'' in the course codebook, \url{https://sta214-f25.github.io/resources/codebook.html})
+\item In R, fit your logistic regression model, and write down the equation of the fitted model. (See ``writing math in Quarto and R Markdown'' in the course codebook, \url{https://sta214-f26.github.io/resources/codebook.html})
 
-\item Interpret each estimated coefficient in terms of the log odds.
-
-\item Interpret each estimated coefficient in terms of the odds.
+\item Interpret each estimated coefficient (in terms of the odds).
 \end{enumerate}
 
 \item Finally, let's use the logistic regression model to make some predictions!
@@ -119,29 +119,19 @@ In the first part of the assignment, we will fit a logistic regression model to 
 
 This part focuses on practice with maximum likelihood estimation, and is separate from the Titanic data you were working with above in Part I. A brief review of mathematical notation and rules for logs and derivatives can be found in the course codebook.\\
 
-\noindent Suppose we have a random variable $Y$, which can take on values $y = 1, 2, 3, 4,...$ (i.e., any positive integer). The probability of each outcome does not depend on any explanatory variables, and we are told that
-$$P(Y = y) = (1 - \pi_0)^{y-1} \pi_0$$
-where $0 \leq \pi_0 \leq 1$. So, $P(Y = 1) = \pi_0$, $P(Y = 2) = (1 - \pi_0)\pi_0$, etc.
+\noindent Suppose we have a random variable $Y$, which can take on values $y = 0, 1, 2, 3, 4,...$ (i.e., any non-negative integer). The probability of each outcome does not depend on any explanatory variables, and we are told that
+$$P(Y = y | \lambda) = \dfrac{\lambda^y e^{-\lambda}}{y!}$$
+where $\lambda > 0$ is an unknown parameter. We want to estimate $\lambda$.\\
+
+\noindent We get $n$ independent observations $Y_1,...,Y_n$ from this distribution, and we will use the method of maximum likelihood to estimate $\lambda$.
 
 \begin{enumerate}
-\item[4.] We don't know $\pi_0$, but we observe 7 observations:
-$$Y_1 = 1, \ Y_2 = 1, \ Y_3 = 3, \ Y_4 = 7, \ Y_5 = 2, \ Y_6 = 4, \ Y_7 = 3$$
-We want to use this observed data to estimate $\pi_0$.
+\item[4.] 
 
 \begin{enumerate}
-\item Two friends propose different values for $\pi_0$: 0.6 and 0.7. Calculate the likelihoods $L(0.6)$ and $L(0.7)$ for each guess. Which friend made a better guess?
+\item Write down the likelihood $L(\lambda)$.
 
-\item We want to consider other possible values of $\pi_0$. Write down the likelihood $L(\pi_0)$ as a function of $\pi_0$, using the observed sequence of data.
-
-\item Make a plot in R showing the likelihood $L(\pi_0)$ as a function of $\pi_0$. Approximately which value of $\pi_0$ maximizes the likelihood?
-
-\item Use calculus to calculate the maximum likelihood estimate $\widehat{\pi}_0$ from the observed data. You will:
-\begin{itemize}
-\item differentiate the log likelihood
-\item set the derivative equal to 0
-\item solve for $\widehat{\pi}_0$
-\end{itemize}
-Make sure to show all your work.
+\item Using calculus, show that the maximum likelihood estimate is $\widehat{\lambda} = \frac{1}{n} \sum \limits_{i=1}^n Y_i$. Make sure to show all your work.
 \end{enumerate}
 \end{enumerate}
 

@@ -21,5 +21,6 @@ September 4
   : Beyond MLR [6.5.2](https://bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#exploratory-analyses)
   
 : **Homework 2 released**{: .label .label-yellow }
+  : [HW 2](https://sta214-f26.github.io/homework/HW2.pdf)
   
 : **Project part 1 released**{: .label .label-green }

@@ -9,7 +9,7 @@ editor: source
 author: "Your name"
 ---
 
-**Collaborators:** (leave blank if none)
+**Collaborators and AI statement:**
 
 **Instructions:** 
 
@@ -21,7 +21,7 @@ author: "Your name"
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 
-titanic <- read.csv("https://sta214-s23.github.io/homework/Titanic.csv")
+titanic <- read.csv("https://sta214-f26.github.io/homework/Titanic.csv")
 ```
 
 ## Question 1
