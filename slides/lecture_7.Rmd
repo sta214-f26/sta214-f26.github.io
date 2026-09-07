@@ -1,0 +1,160 @@
+---
+title: "Model diagnostics"
+author: "Ciaran Evans"
+output: beamer_presentation
+---
+
+## Model assessment
+
+*Essentially, all models are wrong, but some are useful.* (Box and Draper, 1987)
+
+![](three_realms_vds.png)
+
+**Question:** Is our model useful?
+
+\vspace{0.1cm}
+
+\begin{tiny}
+(Image from \textit{Veridical Data Science}, Yu and Barter)
+\end{tiny}
+
+## Motivating example: Dengue data
+
+**Data:** Data on 5720 Vietnamese children, admitted to the hospital with possible dengue fever. Variables include:
+
+* *Sex*: patient's sex (female or male)
+* *Age*: patient's age (in years)
+* *WBC*: white blood cell count
+* *PLT*: platelet count
+* other diagnostic variables...
+* *Dengue*: whether the patient has dengue (0 = no, 1 = yes)
+
+## Motivating example: Dengue data
+
+$$Y_i = \text{dengue status (0 = negative, 1 = positive)}$$
+
+$$Y_i \sim Bernoulli(\pi_i)$$
+
+$$\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) = \beta_0 + \beta_1 WBC_i$$
+
+\vspace{3cm}
+
+## Assumptions and diagnostics
+
+What assumptions do we make in a *linear* regression model?
+
+\vspace{6cm}
+
+## Logistic regression assumptions
+
+$$Y_i \sim Bernoulli(\pi_i)$$
+
+$$\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) = \beta_0 + \beta_1 Age_i$$
+
+\vspace{4cm}
+
+## Don't use raw residuals for logistic regression
+
+Raw residuals: $Y_i - \widehat{\pi}_i$
+
+Example: predicting dengue status with Age
+
+```{r, message=F, warning=F, echo=F, fig.width=5, fig.height=3}
+library(tidyverse)
+library(glmhelpR)
+
+m1 <- glm(Dengue ~ Age, data = dengue, family = binomial)
+data.frame(Age = dengue$Age, resids = dengue$Dengue - m1$fitted.values) |>
+  ggplot(aes(x = Age, y = resids)) +
+  geom_point() +
+  geom_abline(slope = 0, intercept = 0) +
+  theme_bw() +
+  labs(x = "Age", y = "Raw residuals")
+```
+
+## Alternative: empirical logits
+
+For each Age, calculate the *empirical* log odds of dengue (aka *empirical logits*):
+
+```{r, echo = F}
+dengue |>
+  group_by(Age) |>
+  summarize(NoDengue = sum(Dengue == 0),
+            YesDengue = sum(Dengue == 1),
+            p = mean(Dengue),
+            log_odds = log(p/(1 - p)))
+```
+
+## Empirical logit plot
+
+```{r, message=F, warning=F, echo=F, fig.width=5, fig.height=4}
+dengue |>
+  group_by(Age) |>
+  summarize(NoDengue = sum(Dengue == 0),
+            YesDengue = sum(Dengue == 1),
+            p = mean(Dengue),
+            log_odds = log(p/(1 - p))) |>
+  ggplot(aes(x = Age, y = log_odds)) +
+  geom_smooth(method = "lm", se=F) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Age", y = "Empirical log odds")
+```
+
+## Empirical logits with a continuous variable
+
+Trying with WBC:
+
+```{r, echo = F}
+dengue |>
+  group_by(WBC) |>
+  summarize(NoDengue = sum(Dengue == 0),
+            YesDengue = sum(Dengue == 1),
+            p = mean(Dengue),
+            log_odds = log(p/(1 - p))) |>
+  head()
+```
+
+What has gone wrong? What should we do differently?
+
+## Binned empirical logit plots
+
+```{r, echo=F, message=F, warning=F, fig.width=4, fig.height=3}
+emp_logit_plot(dengue, Dengue ~ WBC, num_bins = 15)
+```
+
+Does the shape assumption seem reasonable?
+
+## Binned empirical logit plots
+
+```{r, echo=F, message=F, warning=F, fig.width=4, fig.height=3}
+emp_logit_plot(dengue, Dengue ~ log(WBC), num_bins = 15)
+```
+
+## Binned empirical logit plots
+
+```{r, echo=F, message=F, warning=F, fig.width=4, fig.height=3}
+emp_logit_plot(dengue, Dengue ~ log(WBC), group = Vomiting, num_bins = 15)
+```
+
+## Limitations of empirical logit plots
+
+* Does not assess a fitted model (performed *before* fitting the model)
+
+\smallskip
+
+* One point per *bin*, not one point per *observation*
+
+\smallskip
+
+* Can only plot one or two explanatory variables at a time
+
+\vspace{3cm}
+
+## Class activity
+
+
+
+
+
+

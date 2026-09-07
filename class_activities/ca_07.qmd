@@ -1,0 +1,82 @@
+---
+title: "Activity: empirical logit plots"
+format: html
+editor: source
+---
+
+**Instructions:** 
+
+* Work with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_07_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+## Setup: helpful `R` package
+
+To provide some helper functions for this course, I have created a small R package called [`glmhelpR`](https://github.com/ciaran-evans/glmhelpR). This includes a function for creating empirical logit plots.
+
+To download this function, run the following code in your R console. If R says that the `pak` package is unavailable, uncomment the first line and try again.
+
+```{r, eval=F}
+# install.packages("pak")
+pak::pak("ciaran-evans/glmhelpR")
+```
+
+
+## Empirical logit plots 
+
+Empirical logit plots can be created with the `emp_logit_plot` function in the the `glmhelpR` package.
+
+Here is an example with the `dengue` data:
+
+```{r, message=F, warning=F}
+library(tidyverse)
+library(glmhelpR)
+
+emp_logit_plot(dengue, Dengue ~ WBC, 
+               num_bins = 15, 
+               pt_size = 0.75)
+```
+
+
+## *Titanic* data
+
+On April 14, 1912, the RMS *Titanic* collided with an iceberg. Less than three hours later, early in the morning of April 15, the supposedly "unsinkable" ship sank in the Atlantic Ocean. Less than half the passengers and crew survived, due in part to a limited number of lifeboats and an approach to their use that was different to modern standards.
+
+The survivors, however, were not a random sample of the passengers and crew, as certain groups were more likely than others to be allocated a place in one of the lifeboats. In this activity, we will explore passenger characteristics that are associated with a higher probability of survival.
+
+**Data:** The `titanic` data can be loaded into R with the following:
+
+```{r, eval=F}
+titanic <- read.csv("https://sta214-f26.github.io/homework/Titanic.csv")
+```
+
+The `titanic` data contains information on 891 passengers, with variables including:
+
+* `PassengerId`: A unique ID number for each passenger.
+* `Survived`: An indicator for whether the passenger survived (1) or perished (0) during the disaster.
+* `Pclass`: Indicator for the class of the ticket held by this passengers; 1 = 1st class, 2 = 2nd class, 3 = 3rd class.
+* `Name`: The name of the passenger.
+* `Sex`: Binary indicator for the sex of the passenger (male or female).
+* `Age`: Age of the passenger in years; Age is fractional if the passenger was less than 1 year old.
+* `SibSp`: number of siblings/spouses the passenger had aboard the Titanic. Here, siblings are defined as brother, sister, stepbrother, and stepsister. Spouses are defined as husband and wife.
+* `Parch`: number of parents/children the passenger had aboard the Titanic. Here, parent is defined as mother/father and child is defined as daughter,son, stepdaughter or stepson. NOTE: Some children traveled only with a nanny, therefore `parch`=0 for them. There were no parents aboard for these children.
+* `Ticket`: The unique ticket number for each passenger.
+* `Fare`: How much the ticket cost in US dollars.
+* `Cabin`: The cabin number assigned to each passenger. Some cabins hold more than one passenger.
+* `Embarked`: Port where the passenger boarded the ship; C = Cherbourg, Q = Queenstown, S = Southampton.
+
+
+## Questions
+
+Answer the following questions with the `titanic` data.
+
+1. We could imagine that survival rates may differ by age -- on the one hand, children may be more likely to receive a lifeboat spot (and they take up less space, too), but on the other hand, children who do enter the water may be less able to withstand the cold. Create an empirical logit plot to examine the relationship between age and survival, and comment on what you see. Remember to experiment with different numbers of bins.
+
+2. In addition to age, several other passenger characteristics could relate to survival. Adding additional variables can also help when the shape assumption does not appear to be reasonable. Choose a couple categorical passenger characteristics, and remake your empirical logit plots from question 1, this time coloring the plots by your chosen categorical variables (see the `group` argument in the `emp_logit_plot` function).
+
+3. We would like to fit a logistic regression model to predict the survival probability using passenger age and other characteristics. Based on your exploration in questions 1 and 2, propose a logistic regression model, and fit the model in `R`.
+
+
+
+
+
