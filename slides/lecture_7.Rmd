@@ -153,7 +153,11 @@ emp_logit_plot(dengue, Dengue ~ log(WBC), group = Vomiting, num_bins = 15)
 
 ## Class activity
 
+* Work on the class activity in R (linked on Canvas and the course website)
+* You are welcome to work in groups
+* At the end of class, submit HTML file on Canvas (one per group, listing all group member names)
 
+\vspace{3cm}
 
 
 
