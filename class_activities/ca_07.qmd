@@ -21,6 +21,71 @@ To download this function, run the following code in your R console. If R says t
 pak::pak("ciaran-evans/glmhelpR")
 ```
 
+## If installation fails...
+
+If the `glmhelpR` installation fails, copy the code for the `emp_logit_plot` function:
+
+```{r, eval=F}
+emp_logit_plot <- function(data, reg_formula, group,
+                           num_bins = 5, pt_size = 1){
+
+  var_names <- all.vars(reg_formula)
+
+  if(length(var_names) != 2){
+    stop("Only one variable can appear on the x-axis")
+  }
+
+  if(!is.numeric(data[[var_names[2]]])){
+    stop("The explanatory variable must be numeric")
+  }
+
+  if(dplyr::n_distinct(data[[var_names[1]]]) != 2){
+    stop("The response variable must be binary")
+  }
+
+  data <- data |>
+    dplyr::select(tidyselect::all_of(var_names), {{group}}) |>
+    tidyr::drop_na()
+
+  dat <- stats::model.frame(reg_formula, data)
+
+
+  xname <- colnames(dat)[2]
+  yname <- colnames(dat)[1]
+  colnames(dat) <- c("y", "x")
+
+  if(any(is.infinite(dat$x))){
+    stop(paste("There are non-finite values in", xname))
+  }
+
+  if(!missing(group)){
+    dat <- dat |>
+      dplyr::mutate({{group}} := as.factor(data |> dplyr::pull({{group}})))
+  }
+
+  dat |>
+    dplyr::arrange({{group}}, x) |>
+    dplyr::group_by({{group}}) |>
+    dplyr::mutate(bin = rep(1:num_bins,
+                     each=ceiling(dplyr::n()/num_bins))[1:dplyr::n()]) |>
+    dplyr::group_by(bin, {{group}}) |>
+    dplyr::summarize(x = mean(x),
+              prop = (sum(y) + 0.5)/(dplyr::n() + 1),
+              num_obs = dplyr::n(),
+              .groups = "drop") |>
+    dplyr::mutate(logodds = log(prop/(1 - prop))) |>
+    ggplot2::ggplot(ggplot2::aes(x = x,
+               y = logodds,
+               color = {{group}})) +
+    ggplot2::geom_point(size=pt_size) +
+    ggplot2::geom_smooth(se=F, method="lm", formula = y ~ x, lwd=0.75) +
+    ggplot2::theme_bw() +
+    ggplot2::labs(x = xname,
+         y = "Empirical log odds")
+}
+```
+
+
 
 ## Empirical logit plots 
 
