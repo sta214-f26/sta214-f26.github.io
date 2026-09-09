@@ -1,0 +1,222 @@
+---
+title: "Model diagnostics"
+author: "Ciaran Evans"
+output: beamer_presentation
+---
+
+## Model assessment
+
+*Essentially, all models are wrong, but some are useful.* (Box and Draper, 1987)
+
+![](three_realms_vds.png)
+
+**Question:** Is our model useful?
+
+\vspace{0.1cm}
+
+\begin{tiny}
+(Image from \textit{Veridical Data Science}, Yu and Barter)
+\end{tiny}
+
+## Limitations of empirical logit plots
+
+* Does not assess a fitted model (performed *before* fitting the model)
+
+\smallskip
+
+* One point per *bin*, not one point per *observation*
+
+\smallskip
+
+* Can only plot one or two explanatory variables at a time
+
+\vspace{3cm}
+
+
+## Why residuals in linear regression are nice
+
+```{r, echo=F, message=F, warning=F, fig.align='center', fig.width=3.5, fig.height=3}
+library(tidyverse)
+library(glmhelpR)
+library(gridExtra)
+x <- runif(100, -1, 1)
+y <- x + rnorm(100, sd=0.2)
+
+p1 <- data.frame(x, y) |>
+  ggplot(aes(x = x, y = y)) +
+  geom_point(size=0.25) +
+  theme_bw() +
+  theme(text = element_text(size = 5)) +
+  labs(title = "Dataset 1")
+
+m1 <- lm(y ~ x)
+p2 <- data.frame(x = x,
+           Residual = y - m1$fitted.values) %>%
+  ggplot(aes(x = x, y = Residual)) +
+  geom_point(size=0.25) +
+  geom_abline(slope = 0, intercept = 0, color="blue") +
+  theme_bw() +
+  theme(text = element_text(size = 5)) +
+  labs(title = "Residuals 1")
+
+
+y <- x^2 + rnorm(100, sd=0.2)
+
+p3 <- data.frame(x, y) |>
+  ggplot(aes(x = x, y = y)) +
+  geom_point(size=0.25) +
+  theme_bw() +
+  theme(text = element_text(size = 5)) +
+  labs(title = "Dataset 2")
+
+m1 <- lm(y ~ x)
+p4 <- data.frame(x = x,
+           Residual = y - m1$fitted.values) %>%
+  ggplot(aes(x = x, y = Residual)) +
+  geom_point(size=0.25) +
+  geom_abline(slope = 0, intercept = 0, color="blue") +
+  theme_bw() +
+  theme(text = element_text(size = 5)) +
+  labs(title = "Residuals 2")
+
+
+grid.arrange(p1, p3, p2, p4, ncol = 2)
+```
+
+
+## Randomized quantile residuals
+
+**Simulated data:** $\log \left( \frac{p_i}{1 - p_i} \right) = -1 + 2X_i$
+
+\smallskip
+
+**Model fit:** $\log \left( \frac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_i$
+
+\smallskip
+
+```{r fig.width=3.5, fig.height=2.5, echo=F, message=F}
+set.seed(5349234)
+
+# generate data
+n <- 1000
+x <- runif(n, -5, 5)
+p <- exp(-1 + 2*x)/(1 + exp(-1 + 2*x))
+y <- rbinom(n, 1, p)
+
+# fit the model (correctly specified)
+m_sim <- glm(y ~ x, family = binomial)
+
+# make a quantile residual plot
+data.frame(x = x, residuals = statmod::qresid(m_sim)) |>
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point(size=0.5) +
+  geom_smooth() +
+  theme_bw() +
+  labs(y = "Randomized quantile residuals",
+       title = "Correctly specified model")
+```
+
+## Randomized quantile residuals
+
+**Simulated data:** $\log \left( \frac{p_i}{1 - p_i} \right) = -1 + 2X_i^2$
+
+\smallskip
+
+**Model fit:** $\log \left( \frac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_i$
+
+\smallskip
+
+```{r fig.width=3.5, fig.height=2.5, echo=F, message=F}
+# generate data
+n <- 1000
+x <- runif(n, -5, 5)
+p <- exp(-1 + 2*x^2)/(1 + exp(-1 + 2*x^2))
+y <- rbinom(n, 1, p)
+
+# fit the model (correctly specified)
+m_sim <- glm(y ~ x, family = binomial)
+
+# make a quantile residual plot
+data.frame(x = x, residuals = statmod::qresid(m_sim)) |>
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point(size=0.5) +
+  geom_smooth() +
+  theme_bw() +
+  labs(y = "Randomized quantile residuals",
+       title = "Mis-specified model")
+```
+
+## Example: dengue data
+
+**Model:**  $\log \left( \frac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 \text{WBC}_i$
+
+```{r fig.width=3.5, fig.height=2.5, echo=F, message=F}
+m_d <- glm(Dengue ~ WBC, data = dengue, family = binomial)
+
+set.seed(3)
+data.frame(x = dengue$WBC, residuals = statmod::qresid(m_d)) |>
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point(size=0.5, alpha=0.5) +
+  geom_smooth() +
+  theme_bw() +
+  labs(y = "Randomized quantile residuals", x = "WBC")
+```
+
+\vspace{2cm}
+
+## Example: dengue data
+
+**Model:**  $\log \left( \frac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 \text{WBC}_i$
+
+```{r fig.width=3.5, fig.height=2.5, echo=F, message=F}
+m_d <- glm(Dengue ~ WBC, data = dengue, family = binomial)
+
+set.seed(3)
+data.frame(x = dengue$WBC, residuals = statmod::qresid(m_d)) |>
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point(size=0.5, alpha=0.5) +
+  geom_smooth() +
+  theme_bw() +
+  labs(y = "Randomized quantile residuals", x = "WBC")
+```
+
+**Question:** How can we decide whether a plot is consistent with a correctly-specified model?
+
+## Parametric bootstrap
+
+The *parametric bootstrap* generates data from the *fitted* model:
+
+\vspace{6cm}
+
+## Visual inference
+
+```{r, fig.width=8, fig.height=6, echo=F}
+library(regressinator)
+
+set.seed(3)
+
+qresid_wbc <- function(f){
+  data.frame(resid = statmod::qresid(f),
+             x = model.frame(f)$WBC)
+}
+
+p1 <- model_lineup(m_d, fn = qresid_wbc, nsim = 20) |> 
+  ggplot(aes(x = x, y = resid)) +
+  geom_point(size = 0.25) +
+  geom_smooth(method = 'gam', formula = y ~ s(x, bs = "cs")) +
+  facet_wrap(vars(.sample)) +
+  labs(x = "WBC", y = "Residual") +
+  theme_bw()
+
+p1
+```
+
+## Visual inference
+
+```{r, fig.width=6, fig.height=4, echo=F}
+p1
+```
+
+```{r}
+decrypt("QUg2 qFyF Rx 8tLRyRtx Ko")
+```
