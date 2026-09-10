@@ -22,15 +22,17 @@ STA 214 Homework 3\\
 \vspace{5mm}
 \end{center}
 
-\noindent \textbf{Due:} Friday, September 19 at 10:00pm on Canvas.\\ 
+\noindent \textbf{Due:} Friday, September 18 at 11:59pm on Canvas.\\ 
 
 \noindent \textbf{Instructions:} There are two parts to this assignment. Part I is practice with maximum likelihood estimation, Part II is practice with logistic regression diagnostics.\\
 
 \noindent \textbf{Getting started:} Begin by downloading the HW 3 template from the course website:\\
 
-\url{https://sta214-f25.github.io/homework/hw_03_template.qmd}\\
+\url{https://sta214-f26.github.io/homework/hw_03_template.qmd}\\
 
 \noindent Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks. \textit{If a question requires code, you will not receive credit if no code is provided.}\\
+
+\noindent \textbf{Collaborators and AI statement:} At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.\\
 
 \noindent \textbf{Submission:} When you have completed the assignment, render your homework to HTML and submit on Canvas. For Part I, you may submit a separate scan of your written work, if you prefer.\\
 
@@ -40,31 +42,19 @@ STA 214 Homework 3\\
 
 This part focuses on practice with maximum likelihood estimation. A brief review of mathematical notation and rules for logs and derivatives can be found in the course codebook.\\
 
-\noindent Suppose we have a random variable $Y$, which can take on values $y = 0, 1, 2, 3, 4,...$ (i.e., any non-negative integer). The probability of each outcome does not depend on any explanatory variables, and we are told that
-$$P(Y = y) = \dfrac{\lambda^y e^{-\lambda}}{y!}$$
-where $\lambda \geq 0$. (Recall that $y!$ is the factorial, with $0! = 1$, and $y! = y(y - 1)(y-2)\cdots 1$). So, $P(Y = 0) = e^{-\lambda}$, $P(Y = 1) = \lambda e^{-\lambda}$, etc.
+\noindent Suppose we have a random variable $Y$, and we assume that $Y \sim N(\mu, 1)$. (That is, $Y$ follows a normal distribution with  unknown mean $\mu$, and known variance $1$. The ``probability'' function for $Y$ is then
+$$P(Y = y | \mu) = \frac{1}{\sqrt{2 \pi}} \exp\left\lbrace-\frac{1}{2}(y - \mu)^2\right\rbrace$$
+(Here $\pi$ is the \textit{number}, i.e. $\pi = 3.14159...$). \\
+
+\noindent (Note: Technically, this isn't really a probability in the same sense as probabilities for a Bernoulli distribution, but the distinction is not important for maximum likelihood estimation)\\
+
+\noindent We get $n$ independent observations $Y_1,...,Y_n$ from this normal distribution, and we want to estimate $\mu$.
 
 \begin{enumerate}
-\item[1.] We don't know $\lambda$, but we get 6 observations:
-$$Y_1 = 2, \ Y_2 = 4, \ Y_3 = 6, \ Y_4 = 6, \ Y_5 = 3, \ Y_6 = 1$$
-
-\begin{enumerate}
-
-\item Write down the likelihood $L(\lambda)$ as a function of $\lambda$, using the observed sequence of data.
-
-\item Write down the log likelihood $\log L(\lambda)$ as a function of $\lambda$, using the observed sequence of data.
-
-\item Use calculus to calculate the maximum likelihood estimate $\widehat{\lambda}$ from the observed data. You will:
-\begin{itemize}
-\item differentiate the log likelihood (hint: the factorials will go away when you differentiate)
-\item set the derivative equal to 0
-\item solve for $\widehat{\lambda}$
-\end{itemize}
-Make sure to show all your work.
-\end{enumerate}
+\item[1.] Show that the maximum likelihood estimator is $\widehat{\mu} = \frac{1}{n} \sum \limits_{i=1}^n Y_i$. Make sure to show all your work.
 \end{enumerate}
 
-\vspace{1cm}
+\newpage
 
 \section{Data analysis}
 
@@ -73,10 +63,10 @@ Here we work with data from a website called ScienceForums.Net (SFN), which has 
 \noindent You can load the SFN data into R by
 
 \begin{verbatim}
-sfn <- read.csv("https://sta214-f25.github.io/homework/sfn.csv")
+sfn <- read.csv("https://sta214-f26.github.io/homework/sfn.csv")
 \end{verbatim}
 
-\noindent The sfn dataset contains the following columns:
+\noindent The \texttt{sfn} dataset contains the following columns:
 
 \begin{itemize}
 \item Age: the age of the thread (in days) when the data was collected in 2014, measured from the first post in the thread
@@ -97,7 +87,7 @@ sfn <- read.csv("https://sta214-f25.github.io/homework/sfn.csv")
 \end{itemize}
 
 \begin{enumerate}
-\item[3.] Here you will begin to use logistic regression to answer the moderators' question.
+\item[2.] Here you will begin to use logistic regression to answer the moderators' question.
 
 \begin{enumerate}
 \item Which variables should we focus on to answer the moderators' question? Which of these is our response variable, and which will be our explanatory variables, for logistic regression? \textit{Hint: you may need to create a new variable for the response!}
@@ -112,13 +102,11 @@ sfn <- read.csv("https://sta214-f25.github.io/homework/sfn.csv")
 
 \item Assess the shape assumption for your fitted model: create quantile residual plots to check the shape assumption for quantitative variables (you may use the \texttt{qresid} function in the \texttt{statmod} package). See the class activity and the course codebook for details on quantile residual plots.
 
-\item If there are any violations of the shape assumption in part (e), experiment with further transformations to address these violations. If you made any changes to your model from (e), report your new fitted model here. If there are no violations of the shape assumption in part (e), simply state this.
+\item Use the \texttt{regressinator} package (see the class activity and course codebook) to create a quantile residual plot lineup for one of your quantitative explanatory variables. Can you distinguish the original data from the simulated plots?
 
-\item Check the model for multicollinearity using VIFs. Do you see any issues? If so, make further adjustments to your model.
+\item Based on your exploration in (e) and (f), do you think there are any violations to the shape assumption? If so, experiment with further transformations to address these violations, and report your final fitted model.  If there are no violations of the shape assumption, simply state this.
 
 \item Interpret the coefficients of your final logistic regression model in context of the research question.
-
-\item Finally, let’s check Cook’s distance for influential observations. We are typically concerned about influential points if Cook’s distance is larger than 0.5 or 1. Should we be concerned here?
 
 \end{enumerate} 
 \end{enumerate}

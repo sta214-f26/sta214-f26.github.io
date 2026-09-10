@@ -14,3 +14,4 @@ September 11
   : [slides](https://sta214-f26.github.io/slides/lecture_8.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_08.html)
 
 : **Homework 3 released**{: .label .label-yellow }
+  : [HW 3](https://sta214-f26.github.io/homework/HW3.pdf)
