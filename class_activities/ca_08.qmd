@@ -12,22 +12,20 @@ editor: source
 
 ## Setup
 
-For this activity, you will need the [`glmhelpR`](https://github.com/ciaran-evans/glmhelpR) and the `statmod` packages installed. 
-
-You should already have installed `glmhelpR` on the previous class activity. **If not**, then run the following code in your R console. If R says that the `pak` package is unavailable, uncomment the first line and try again.
-
-```{r, eval=F}
-# install.packages("pak")
-pak::pak("ciaran-evans/glmhelpR")
-```
-
-To install the `statmod` package, use
+For this activity, you will need the `statmod` and `regressinator` packages installed. To install, run the following in the console:
 
 ```{r, eval=F}
 install.packages("statmod")
+install.packages("regressinator")
 ```
 
-in the console.
+You will also need to download the `dengue` data:
+
+```{r, message=F, warning=F}
+library(tidyverse)
+
+dengue <- read_csv("https://sta214-f26.github.io/homework/dengue.csv")
+```
 
 
 ## Fitted model
@@ -35,11 +33,6 @@ in the console.
 Using the dengue data, we fit a model with WBC and create a randomized quantile residual plot:
 
 ```{r, message=F, warning=F}
-# install.packages("statmod")
-
-library(tidyverse)
-library(glmhelpR)
-
 m_dengue <- glm(Dengue ~ WBC, data = dengue, family = binomial)
 
 data.frame(x = model.frame(m_dengue)$WBC, 
@@ -103,7 +96,6 @@ We want to repeat the parametric bootstrap process multiple times, and compare t
 This can be done efficiently with the `regressinator` package. The following code will produce a *line-up* of 20 different quantile residual plots, in a *random order*. One of the plots is for the original data, while the other 19 are from parametric bootstrap samples.
 
 ```{r, eval=F}
-# install.packages("regressinator")
 library(regressinator)
 
 qresid_wbc <- function(f){
