@@ -1,0 +1,214 @@
+---
+title: "Outliers and multicollinearity"
+author: "Ciaran Evans"
+output: beamer_presentation
+---
+
+## Motivating example
+
+```{r fig.width=3.5, fig.height=2.5}
+#| message: FALSE
+#| warning: FALSE
+#| echo: FALSE
+#| 
+library(robustbase)
+library(tidyverse)
+foodstamp |>
+  ggplot(aes(x = ifelse(participation == 0, "no", "yes"), 
+             y = log(income + 1))) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Participation in food stamp program", 
+       y = "log(Income + 1)")
+```
+
+**Question:** Why are we concerned about outliers when we fit a regression model?
+
+## Motivating example
+
+```{r fig.width=3, fig.height=2}
+#| message: FALSE
+#| warning: FALSE
+#| echo: FALSE
+#| 
+foodstamp |>
+  ggplot(aes(x = ifelse(participation == 0, "no", "yes"), 
+             y = log(income + 1))) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Participation in food stamp program", 
+       y = "log(Income + 1)")
+```
+
+```{r, echo=F}
+m1 <- glm(participation ~ log(income + 1), family = binomial,
+          data = foodstamp)
+
+summary(m1)$coefficients |>
+  round(digits = 3) |>
+  knitr::kable()
+```
+
+**Question:** How would the estimated coefficients change if the potential outlier were removed?
+
+## Cook's distance
+
+```{r, echo=F}
+m1 <- glm(participation ~ log(income + 1), family = binomial,
+          data = foodstamp)
+
+summary(m1)$coefficients |>
+  round(digits = 3) |>
+  knitr::kable()
+
+m2 <- glm(participation ~ log(income + 1), family = binomial,
+          data = foodstamp[-5,])
+
+summary(m2)$coefficients |>
+  round(digits = 3) |>
+  knitr::kable()
+```
+
+**Cook's distance:**
+
+## Cook's distance
+
+```{r, echo=F, fig.width = 4, fig.height = 3.5}
+library(patchwork)
+p1 <- foodstamp |>
+  ggplot(aes(y = ifelse(participation == 0, "no", "yes"), 
+             x = log(income + 1))) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(y = "Participation in \n food stamp program", 
+       x = "log(Income + 1)")
+
+p2 <- foodstamp |>
+  mutate(inc = log(income + 1),
+         cook = cooks.distance(m1)) |>
+  ggplot(aes(x = inc, y = cook)) +
+  geom_point(size = 0.75) +
+  labs(x = "log(income + 1)", y = "Cook's distance") +
+  theme_bw()
+
+p1/p2
+```
+
+## Handling outliers
+
+Should I just remove any unusual observations in the data?
+
+\vspace{4cm}
+
+## College scorecard data
+
+The College Scorecard, compiled by the US Department of Education, is meant to be a tool for college applicants to compare different institutions. Variables include:
+
+* `CONTROL`: whether the school is public or private
+* `SATVRMID`: midpoint of SAT critical reading scores of students attending the school
+* `SATMTMID`: midpoint of SAT math scores
+* `SATWRMID`: midpoint of SAT writing scores
+* `ACTCMMID`: midpoint of the ACT cumulative scores
+* `ACTENMID`: midpoint of ACT English scores
+* `ACTMTMID`: midpoint of ACT math scores
+* `ACTWRMID`: midpoint of ACT writing scores
+* `UGDS`: number of undergraduate students at the school
+* `NPT4`: average cost to attend the school
+* `RPY_3YR_70`: whether the proportion of students actively repaying their loans 3 years after graduation is > 70% (1 = yes, 0 = no)
+
+## College scorecard data
+
+```{r, echo=F, fig.width=3.5, fig.height=3.5, message=F, warning=F}
+scorecard <- read_csv("https://sta112-s26.github.io/projects/scorecard.csv")
+library(GGally)
+scorecard %>%
+  ggpairs(columns = 4:10,
+          upper = list(continuous = wrap("points", size = 0.5)),
+          lower = list(continuous = GGally::wrap(ggally_cor, stars = F))) +
+  theme_classic() +
+  theme(text = element_text(size = 5))
+```
+
+## Multicollinearity
+
+**Multicollinearity:** (linear) relationship between 2 or more explanatory variables.
+
+\vspace{5cm}
+
+## Example: multicollinearity
+
+With all the test score variables:
+
+```{r}
+#| echo: FALSE
+
+m1 <- glm(RPY_3YR_70 ~ SATVRMID + SATMTMID + SATWRMID +
+            ACTCMMID + ACTENMID + ACTMTMID + ACTWRMID,
+          family = binomial, data = scorecard)
+
+summary(m1)$coefficients |>
+  round(digits = 3) |>
+  knitr::kable()
+```
+
+With just one test score variable:
+
+```{r}
+#| echo: FALSE
+
+m1 <- glm(RPY_3YR_70 ~ SATVRMID,
+          family = binomial, data = scorecard)
+
+summary(m1)$coefficients |>
+  round(digits = 3) |>
+  knitr::kable()
+```
+
+## Variance inflation factors
+
+## Handling multicollinearity
+
+```{r, include=F}
+scorecard <- scorecard |>
+  select(-c(INSTNM, STABBR, RPY_3YR_RT_SUPP, MD_EARN_WNE_P10,
+            GRAD_DEBT_MDN_SUPP))
+```
+
+
+```{r}
+m1 <- glm(RPY_3YR_70 ~ .,
+          family = binomial, data = scorecard)
+
+car::vif(m1)
+```
+
+What should we do when there is high multicollinearity?
+
+\vspace{2cm}
+
+
+
+## Summary
+
+* Outliers:
+    * Change our coefficient estimates
+    * Identify with EDA before model fitting
+    * Also check with Cook's distance after model fitting
+    * Clear errors, or points from a different population of interest, can be removed. Otherwise, report results with and without outliers
+    
+\vspace{0.5cm}
+
+* Multicollinearity:
+    * Makes it hard to interpret meaning of a coefficient (how do we hold other variables constant??)
+    * Increases variability of estimated coefficients
+    * Identify with pairs plots, correlation matrices before model fitting
+    * Also check with VIFs after model fitting
+    * Options: use a subset of the explanatory variables; combine several explanatory variables (average, PCA, etc.); ignore (if only predicting)
+    
+## Class activity
+
+* Work on the class activity in R (linked on Canvas and the course website)
+* You are welcome to work in groups
+* At the end of class, submit HTML file on Canvas (one per group, listing all group member names)
+
+
