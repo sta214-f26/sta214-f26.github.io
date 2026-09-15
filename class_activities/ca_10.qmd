@@ -1,0 +1,209 @@
+---
+title: "Activity: calibration plots"
+format: html
+editor: source
+---
+
+**Instructions:** 
+
+* Work with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_10_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+## Setup: helpful `R` package
+
+To provide some helper functions for this course, I have created a small R package called [`glmhelpR`](https://github.com/ciaran-evans/glmhelpR). This includes a function for creating calibration plots.
+
+**If you have already installed this package, you should not need to do so again!**
+
+To download this function, run the following code in your R console. If R says that the `pak` package is unavailable, uncomment the first line and try again.
+
+```{r, eval=F}
+# install.packages("pak")
+pak::pak("ciaran-evans/glmhelpR")
+```
+
+## If installation fails...
+
+If the `glmhelpR` installation fails, copy the code for the `calibration_plot` function:
+
+```{r, eval=F}
+calibration_plot <- function(pred, y, group, num_bins = 10,
+                             use_data_range = F){
+  
+  if(length(pred) != length(y)){
+    stop("Predictions (pred) and outcome labels (y) must have the same length")
+  }
+  
+  dat <- data.frame(pred, y)
+  
+  if(!missing(group)){
+    if(length(pred) != length(group)){
+      stop("Predictions (pred) and group labels (group) must have the same length")
+    }
+    
+    dat <- dat |>
+      dplyr::mutate(group = as.factor(group))
+  } else {
+    dat <- dat |>
+      dplyr::mutate(group = "")
+  }
+  
+  if(use_data_range){
+    xmin <- min(pred)
+    xmax <- max(pred)
+  } else {
+    xmin <- 0
+    xmax <- 1
+  }
+  break_pts <- seq(xmin, xmax, length = num_bins + 1)
+  
+  dat <- dat |>
+    tidyr::drop_na()
+  
+  p <- dat |>
+    dplyr::mutate(bin = cut(pred, breaks = break_pts)) |>
+    dplyr::group_by(group, bin) |>
+    dplyr::summarize(pred = mean(pred), prop = mean(y), n = dplyr::n(),
+                     sm = sum(y),
+                     lower = stats::binom.test(sm, n)$conf.int[1],
+                     upper = stats::binom.test(sm, n)$conf.int[2],
+                     .groups = "drop") |>
+    ggplot2::ggplot() +
+    ggplot2::geom_errorbar(ggplot2::aes(x = pred,
+                                        ymin=lower,
+                                        ymax=upper),
+                           width=.05*(xmax - xmin),
+                           color = "orange") +
+    ggplot2::geom_point(ggplot2::aes(x = pred, y = prop)) +
+    ggplot2::geom_rug(ggplot2::aes(x = pred), data = dat,
+                      alpha=0.5, linewidth = 0.1) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, lty = 2) +
+    ggplot2::theme_bw() +
+    ggplot2::facet_wrap(ggplot2::vars(group)) +
+    ggplot2::labs(x = "Predicted probability", y = "Observed proportion") +
+    ggplot2::scale_x_continuous(limits = c(xmin, xmax))
+  
+  if(missing(group)){
+    p <- p + ggplot2::theme(strip.text.x = ggplot2::element_blank())
+  }
+  
+  p
+}
+```
+
+## Calibration plots
+
+Calibration plots can be created with the `calibration_plot` function in the the `glmhelpR` package.
+
+Here is an example with the `dengue` data:
+
+```{r, message=F, warning=F}
+library(tidyverse)
+library(glmhelpR)
+
+m_dengue <- glm(Dengue ~ WBC, 
+                family = binomial, data = dengue)
+
+calibration_plot(m_dengue$fitted.values, m_dengue$y,
+                       num_bins = 12) +
+  labs(title = "Logistic regression with WBC")
+```
+
+
+## *Titanic* data
+
+On April 14, 1912, the RMS *Titanic* collided with an iceberg. Less than three hours later, early in the morning of April 15, the supposedly "unsinkable" ship sank in the Atlantic Ocean. Less than half the passengers and crew survived, due in part to a limited number of lifeboats and an approach to their use that was different to modern standards.
+
+The survivors, however, were not a random sample of the passengers and crew, as certain groups were more likely than others to be allocated a place in one of the lifeboats. In this activity, we will explore passenger characteristics that are associated with a higher probability of survival.
+
+**Data:** The `titanic` data can be loaded into R with the following:
+
+```{r}
+titanic <- read.csv("https://sta214-f26.github.io/homework/Titanic.csv")
+```
+
+The `titanic` data contains information on 891 passengers, with variables including:
+
+* `PassengerId`: A unique ID number for each passenger.
+* `Survived`: An indicator for whether the passenger survived (1) or perished (0) during the disaster.
+* `Pclass`: Indicator for the class of the ticket held by this passengers; 1 = 1st class, 2 = 2nd class, 3 = 3rd class.
+* `Name`: The name of the passenger.
+* `Sex`: Binary indicator for the sex of the passenger (male or female).
+* `Age`: Age of the passenger in years; Age is fractional if the passenger was less than 1 year old.
+* `SibSp`: number of siblings/spouses the passenger had aboard the Titanic. Here, siblings are defined as brother, sister, stepbrother, and stepsister. Spouses are defined as husband and wife.
+* `Parch`: number of parents/children the passenger had aboard the Titanic. Here, parent is defined as mother/father and child is defined as daughter,son, stepdaughter or stepson. NOTE: Some children traveled only with a nanny, therefore `parch`=0 for them. There were no parents aboard for these children.
+* `Ticket`: The unique ticket number for each passenger.
+* `Fare`: How much the ticket cost in US dollars.
+* `Cabin`: The cabin number assigned to each passenger. Some cabins hold more than one passenger.
+* `Embarked`: Port where the passenger boarded the ship; C = Cherbourg, Q = Queenstown, S = Southampton.
+
+## Empirical logit plots
+
+Previously, we looked at empirical logit plots for the `titanic` data. Here are some examples using Age, Sex, and Passenger class:
+
+```{r, echo=F}
+library(patchwork)
+p1 <- emp_logit_plot(titanic, Survived ~ Age, group = Sex,
+               num_bins = 25)
+
+p2 <- emp_logit_plot(titanic, Survived ~ Age, group = Pclass,
+               num_bins = 25)
+
+p3 <- titanic |>
+  filter(Sex == "female") |>
+  emp_logit_plot(Survived ~ Age, group = Pclass,
+               num_bins = 15) +
+  labs(title = "Female passengers")
+
+p4 <- titanic |>
+  filter(Sex == "male") |>
+  emp_logit_plot(Survived ~ Age, group = Pclass,
+               num_bins = 15) +
+  labs(title = "Male passengers")
+
+(p1 + p2)/(p3 + p4)
+```
+
+
+
+## Questions
+
+Answer the following questions with the `titanic` data.
+
+
+1. First, missing values may cause some issues when creating calibration plots. Run the following code to create a new dataset (called `titanic_small`) which removes rows with missing Age:
+
+```{r}
+titanic_small <- titanic |>
+  drop_na(Age)
+```
+
+2. Using the `titanic_small` dataset, fit a logistic regression model to predict passenger survival, using Age as the **only** explanatory variable. Call this fitted model `m_titanic`.
+
+3. Now let's create a calibration plot: run the code below to make then plot for the fitted model from question 2, and assess whether the predicted probabilities are calibrated. 
+
+```{r, eval=F}
+calibration_plot(m_titanic$fitted.values,
+                       m_titanic$y,
+                       use_data_range = T) +
+  labs(title = "Age only")
+```
+
+4.The empirical logit plots shown above suggest that there may also be an effect of Sex and Passenger class. If so, then the predicted probabilities may be **mis-calibrated** if Sex and Passenger class are not included in the model. Run the code below to create an empirical logit plot for your `m_titanic` model, grouped by Sex, and interpret the results:
+
+```{r, eval=F}
+calibration_plot(m_titanic$fitted.values,
+                       m_titanic$y,
+                       group = titanic_small$Sex,
+                       use_data_range = T) +
+  labs(title = "Age only, plotted by Sex")
+```
+
+5. Now fit a new logistic regression model (call it `m_titanic2`), which uses Age, Sex, and Passenger class as the explanatory variables.
+
+6. Create calibration plots for the fitted model from question 5. Do the predictions look better than the original model?
+
+
+
+

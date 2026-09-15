@@ -8,6 +8,7 @@ September 14
 
 September 16
 : Assessing predictions
+  : [slides](https://sta214-f26.github.io/slides/lecture_10.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_10.html)
   
 September 18
 : Assessing predictions

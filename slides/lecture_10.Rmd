@@ -1,0 +1,257 @@
+---
+title: "Assessing predictions"
+author: "Ciaran Evans"
+output: beamer_presentation
+---
+
+## Model assessment
+
+*Essentially, all models are wrong, but some are useful.* (Box and Draper, 1987)
+
+![](three_realms_vds.png)
+
+**Today:** Is our good at *predicting* the response?
+
+\vspace{0.1cm}
+
+\begin{tiny}
+(Image from \textit{Veridical Data Science}, Yu and Barter)
+\end{tiny}
+
+
+## Types of prediction
+
+**Regression:**
+
+\vspace{2cm}
+
+**Classification:**
+
+\vspace{2cm}
+
+General principle: predictions from regression can be converted into classification, but not the other way around!
+
+## Assessing predicted probabilities
+
+$$
+\begin{aligned}
+Y_i  &\sim Bernoulli(p_i) \\
+\log \left( \dfrac{\widehat{\pi}_i}{1 - \widehat{\pi}_i} \right) &= \beta_0 + \beta_1 X_{i1} + \cdots + \beta_k X_{ik}
+\end{aligned}
+$$
+
+**Question:** How do we tell if $\widehat{\pi}_i$ is a "good" estimator of $\pi_i$?
+
+\vspace{5cm}
+
+## Assessing predicted probabilities
+
+```{r echo=F, message=F, warning=F, fig.width=6, fig.height=3}
+library(tidyverse)
+library(glmhelpR)
+library(patchwork)
+
+m_dengue <- glm(Dengue ~ WBC, data = dengue, family = binomial)
+m_dengue2 <- glm(Dengue ~ log(WBC), data = dengue, family = binomial)
+
+p1 <- dengue |>
+  mutate(residuals = statmod::qresid(m_dengue)) |>
+  ggplot(aes(x = WBC, y = residuals)) +
+  geom_point(size=0.5) +
+  geom_smooth() +
+  theme_bw() +
+  labs(y = "Randomized quantile residuals",
+       title = "Logistic regression of \n Dengue on WBC")
+
+p2 <- dengue |>
+  mutate(residuals = statmod::qresid(m_dengue2)) |>
+  ggplot(aes(x = log(WBC), y = residuals)) +
+  geom_point(size=0.5) +
+  geom_smooth() +
+  theme_bw() +
+  labs(y = "Randomized quantile residuals",
+       title = "Logistic regression of \n Dengue on log(WBC)")
+p1 + p2
+```
+
+\vspace{1.5cm}
+
+**Question:** Does using WBC vs. log(WBC) make a difference for the quality of our predictions?
+
+
+
+## Calibration plot
+
+```{r echo=F, message=F, warning=F, fig.width=6, fig.height=4.5}
+p3 <- calibration_plot(m_dengue$fitted.values, m_dengue$y,
+                       num_bins = 12) +
+  labs(title = "Logistic regression with WBC") +
+  theme(text = element_text(size = 10))
+p4 <- calibration_plot(m_dengue2$fitted.values,
+                       m_dengue2$y) +
+  labs(title = "Logistic regression with log(WBC)") +
+  theme(text = element_text(size = 10))
+
+(p1 + p2)/(p3 + p4)
+```
+
+## Calibration plot
+
+```{r echo=F, message=F, warning=F, fig.width=6, fig.height=2.5}
+p3 <- calibration_plot(m_dengue$fitted.values, m_dengue$y,
+                       num_bins = 12) +
+  labs(title = "Logistic regression with WBC") +
+  theme(text = element_text(size = 10))
+p4 <- calibration_plot(m_dengue2$fitted.values,
+                       m_dengue2$y) +
+  labs(title = "Logistic regression with log(WBC)") +
+  theme(text = element_text(size = 10))
+
+p3 + p4
+```
+
+**Question:** How do I tell if any unusual features in the calibration plot are just due to random chance?
+
+\vspace{2cm}
+
+## Parametric bootstrap + visual inference
+
+```{r, include=F}
+cal_data <- function(pred, y, group, num_bins = 10,
+                     use_data_range = F){
+  dat <- data.frame(pred, y)
+  
+  if(!missing(group)){
+    if(length(pred) != length(group)){
+      stop("Predictions (pred) and group labels (group) must have the same length")
+    }
+    
+    dat <- dat |>
+      dplyr::mutate(group = as.factor(group))
+  } else {
+    dat <- dat |>
+      dplyr::mutate(group = "")
+  }
+  
+  if(use_data_range){
+    xmin <- min(pred)
+    xmax <- max(pred)
+  } else {
+    xmin <- 0
+    xmax <- 1
+  }
+  break_pts <- seq(xmin, xmax, length = num_bins + 1)
+  
+  dat <- dat |>
+    tidyr::drop_na()
+  
+  dat |>
+    dplyr::mutate(bin = cut(pred, breaks = break_pts)) |>
+    dplyr::group_by(group, bin) |>
+    dplyr::summarize(pred = mean(pred), prop = mean(y), n = dplyr::n(),
+                     sm = sum(y),
+                     lower = stats::binom.test(sm, n)$conf.int[1],
+                     upper = stats::binom.test(sm, n)$conf.int[2],
+                     .groups = "drop")
+}
+```
+
+```{r, echo=F, message=F, warning=F, fig.width=6, fig.height=4.5}
+library(regressinator)
+library(tidyverse)
+bootstrap_cal <- function(f){
+  pred <- f$fitted.values
+  y <- f$y
+  cal_data(pred, y, num_bins = 12)
+}
+
+model_lineup(m_dengue, fn = bootstrap_cal, nsim = 20) |>
+  ggplot() +
+  geom_errorbar(ggplot2::aes(x = pred,
+                                      ymin=lower,
+                                      ymax=upper),
+                         width=.05,
+                         color = "orange") +
+  geom_point(aes(x = pred, y = prop), size=0.75) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
+  theme_bw() +
+  labs(x = "Predicted probability", y = "Observed proportion") +
+  facet_wrap(vars(.sample)) +
+  theme(
+    strip.background = element_blank(),
+    strip.text.x = element_blank())
+```
+
+## Class activity
+
+* Work on the class activity (course website) with a neighbor
+* At the end of class, submit your rendered HTML on Canvas
+
+\vspace{3cm}
+
+## Class activity
+
+```{r, include=F}
+titanic <- read.csv("https://sta214-f26.github.io/homework/Titanic.csv")
+
+titanic_small <- titanic |>
+  drop_na(Age)
+
+m_titanic <- glm(Survived ~ Age, 
+                 data = titanic_small, family = binomial)
+```
+
+```{r, echo=F, message=F, fig.width=6, fig.height=3}
+calibration_plot(m_titanic$fitted.values,
+                       m_titanic$y,
+                       group = titanic_small$Sex,
+                       use_data_range = T) +
+  labs(title = "Age only, plotted by Sex")
+```
+
+## Class activity
+
+```{r echo=F, message=F, fig.width=4, fig.height=3}
+m_titanic2 <- glm(Survived ~ Age + Sex + as.factor(Pclass), 
+                 data = titanic_small, family = binomial)
+
+calibration_plot(m_titanic2$fitted.values,
+                       m_titanic2$y,
+                       use_data_range = T,
+                 num_bins = 12) +
+  labs(title = "Age, Sex, Pclass")
+```
+
+## Visual inference
+
+```{r, echo=F, message=F, warning=F, fig.width=6, fig.height=4.5}
+set.seed(5)
+model_lineup(m_titanic2, fn = bootstrap_cal, nsim = 20) |>
+  ggplot() +
+  geom_errorbar(ggplot2::aes(x = pred,
+                             ymin=lower,
+                             ymax=upper),
+                width=.05,
+                color = "orange") +
+  geom_point(aes(x = pred, y = prop), size=0.75) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
+  theme_bw() +
+  labs(x = "Predicted probability", y = "Observed proportion") +
+  facet_wrap(vars(.sample)) +
+  theme(
+    strip.background = element_blank(),
+    strip.text.x = element_blank())
+```
+
+## Activity
+
+```{r echo=F, message=F, fig.width=6, fig.height=3}
+calibration_plot(m_titanic2$fitted.values,
+                       m_titanic2$y, 
+                       group = titanic_small$Sex, 
+                       use_data_range = T) +
+  labs(title = "Age, Sex, Pclass, plotted by Sex")
+```
+
+
+
