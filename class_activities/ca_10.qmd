@@ -174,7 +174,10 @@ Answer the following questions with the `titanic` data.
 
 1. First, missing values may cause some issues when creating calibration plots. Run the following code to create a new dataset (called `titanic_small`) which removes rows with missing Age:
 
-```{r}
+```{r, message=F, warning=F}
+library(tidyverse)
+titanic <- read.csv("https://sta214-f26.github.io/homework/Titanic.csv")
+
 titanic_small <- titanic |>
   drop_na(Age)
 ```
@@ -184,6 +187,7 @@ titanic_small <- titanic |>
 3. Now let's create a calibration plot: run the code below to make then plot for the fitted model from question 2, and assess whether the predicted probabilities are calibrated. 
 
 ```{r, eval=F}
+library(glmhelpR) # or copy the function
 calibration_plot(m_titanic$fitted.values,
                        m_titanic$y,
                        use_data_range = T) +
