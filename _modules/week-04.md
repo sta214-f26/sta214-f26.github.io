@@ -12,5 +12,6 @@ September 16
   
 September 18
 : Assessing predictions
+  : [slides](https://sta214-f26.github.io/slides/lecture_11.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_11.html)
 
 : **Homework 4 released**{: .label .label-yellow }

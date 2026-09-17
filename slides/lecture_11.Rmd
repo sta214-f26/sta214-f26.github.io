@@ -102,9 +102,9 @@ table(Prediction = m1$fitted.values > 0.5,
 ### Class activity
 
 .large[
-Predictions with the SBA data:
-
-[https://sta214-f25.github.io/class_activities/ca_10.html](https://sta214-f25.github.io/class_activities/ca_10.html)
+* Work on the class activity (course website)
+* We will then discuss as a group
+* At the end of class, submit your rendered HTML on Canvas
 ]
 
 
