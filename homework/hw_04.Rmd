@@ -9,17 +9,19 @@ editor_options:
   chunk_output_type: console
 ---
 
-**Due:** Friday, September 26, 10:00pm on Canvas
+**Due:** Friday, September 25, 11:59pm on Canvas
 
 **Instructions:** 
 
 Begin by downloading the HW 4 template from the course website:
 
-[https://sta214-f25.github.io/homework/hw_04_template.qmd](https://sta214-f25.github.io/homework/hw_04_template.qmd)
+[https://sta214-f26.github.io/homework/hw_04_template.qmd](https://sta214-f26.github.io/homework/hw_04_template.qmd)
 
 Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks.
 
 When you have completed the assignment, render your homework to HTML and submit on Canvas. *You must submit the rendered HTML on Canvas to receive full credit!*
+
+**Collaborators and AI statement:** At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.
 
 **Code guidelines:**
 
@@ -129,76 +131,50 @@ vif(m2)
 :::{.question}
 #### Question 2
 
-Using the output provided for the two models, calculate $SE(\widehat{\beta}_1)$ for the *second* model, `m2`.
+Using the output provided for the two models, estimate $SE(\widehat{\beta}_1)$ for the *second* model, `m2`.
 :::
 
-### Deviance
+### Diagnostics
 
-Below is the output for a logistic regression model:
+Your friend is interested in doing model diagnostics for a simple logistic regression model. They know that the log-odds are assumed to be a linear function of the explanatory variable. They also know that they can get the *fitted* log-odds for the model in R. 
 
+To assess the shape assumption, they therefore decide to write the following code, which produces the plot below:
 
 ```{r, include=F}
-set.seed(383)
-
-n <- 100
-rho <- 0.99
-beta <- c(0, 2, 1, 1)
-
-# Create the covariance matrix sigma
-sigma <- diag(rep(1 - rho, 3)) + matrix(rep(rho, 9), nrow=3)
-
-# Generate Xs from a multivariate normal distribution
-X <- rmvnorm(n, sigma = sigma)
-
-x1 <- X[,1]
-x2 <- X[,2]
-x3 <- X[,3]
-
-X_complete <- cbind(1, X)
-
-# generate probabilities p
-p <- exp(X_complete %*% beta)/(1 + exp(X_complete %*% beta))
-
-# generate bernoulli response y
-y <- rbinom(n, 1, p)
+library(patchwork)
+library(tidyverse)
+dengue <- read.csv("https://sta279-s22.github.io/labs/dengue.csv")
 ```
 
-```{r}
-m1 <- glm(y ~ x1, family = binomial)
+```{r, fig.width=3, fig.height=2.5}
+m_dengue <- glm(Dengue ~ WBC, data = dengue, family = binomial)
 
-summary(m1)
+dengue |>
+  mutate(fitted_logit = predict(m_dengue, type = "link")) |>
+  ggplot(aes(x = WBC, y = fitted_logit)) +
+  geom_point(size=0.5) +
+  theme_bw() +
+  labs(x = "WBC", y = "Estimated log-odds of dengue")
 ```
-
 
 :::{.question}
 #### Question 3
 
-What is the log-likelihood for the fitted model?
+Examining the plot, they are ecstatic to see a perfectly linear relationship! They conclude that the shape assumption is satisfied.
+
+Comment on your friend's approach.
 :::
+
+### Likelihood
+
+The estimated coefficients for the model fit in question 3 are $\widehat{\beta}_0 = 1.737$ and $\widehat{\beta}_1 = -0.361$.
 
 :::{.question}
 #### Question 4
 
-The estimated coefficients for the model are $\widehat{\beta}_0 = -0.4769$ and $\widehat{\beta}_1 = 3.7934$.
-
-Suppose that instead of these estimated coefficients, I decide I prefer $\widehat{\beta}_0 = -0.5$ and $\widehat{\beta}_1 = 4$ (on the same data). If I calculate the log-likelihood and deviance for the model with these different coefficients, how would they compare to the output shown above? (For each of  log-likelihood and deviance, explain whether it will increase, decrease, or stay the same).
+Suppose that instead of these estimated coefficients, I decide I prefer $\widehat{\beta}_0 = 1.5$ and $\widehat{\beta}_1 = -0.5$ (on the same data). If I calculate the log-likelihood for the model with these different coefficients (instead of the original coefficients 1.737 and -0.361), how will it change? (Explain whether it will increase, decrease, or stay the same).
 :::
 
-We now fit a second model, with two additional explanatory variables:
-
-```{r}
-m2 <- glm(y ~ x1 + x2 + x3, family = binomial)
-summary(m2)
-vif(m2)
-```
-
-Comparing the two models (`m1` and `m2` in the displayed output), we notice that while the deviance decreases very slightly, the AIC has *increased* in model 2. 
-
-:::{.question}
-#### Question 5
-
-Explain what is causing the AIC to increase when we add additional variables to the model. Your answer should use information provided by the displayed VIFs.
-:::
 
 
 ### Prediction
@@ -213,7 +189,7 @@ Your friend has built a logistic regression model to diagnose a rare disease, us
 They calculate the overall accuracy of their predictions, and are ecstatic to obtain an accuracy of 95%!
 
 :::{.question}
-#### Question 6
+#### Question 5
 
 Should your friend be happy with their model's predictive performance? Explain why or why not. Your answer should include a discussion of other metrics for assessing predictive ability (such as sensitivity and specificity).
 :::
@@ -233,19 +209,45 @@ In response, their doctor provides a confusion matrix from a recent study on the
 The doctor claims that, *if a patient is positive for the disease*, there is a 90.5% chance that they will test positive. Therefore, the doctor argues that your friend is very likely to truly have the disease.
 
 :::{.question}
-#### Question 7
+#### Question 6
 
 Using the confusion matrix, explain how the doctor got the 90.5% probability they reported.
 :::
 
 :::{.question}
-#### Question 8
+#### Question 7
 
 *Given that your friend tested positive*, how likely is it that they actually have the disease? Calculate a relevant value from the confusion matrix. 
 
 Is the doctor correct that your friend is "very likely to truly have the disease"?
 :::
 
+
+# Maximum likelihood estimation
+
+Suppose we have independent samples $(X_1, Y_1), ..., (X_n, Y_n)$ from the linear regression model
+
+$$Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \hspace{1cm} \varepsilon_i \sim N(0, 1)$$
+
+This is equivalent to saying that $Y_i \sim N(\beta_0 + \beta_1 X_i, 1)$, which means that
+
+$$P(Y_i| \beta_0, \beta_1) = \frac{1}{\sqrt{2 \pi}} \exp\left\lbrace-\frac{1}{2} (Y_i - \beta_0 - \beta_1 X_i)^2 \right\rbrace$$
+
+We now have two parameters to estimate ($\beta_0$ and $\beta_1$), but our likelihood is constructed the same way as before:
+
+$$L(\beta_0, \beta_1) = \prod \limits_{i=1}^n P(Y_i| \beta_0, \beta_1)$$
+
+:::{.question}
+#### Question 8
+
+Using this information, show that the log likelihood is
+
+$$\log L(\beta_0, \beta_1) = n \log \left(\frac{1}{\sqrt{2 \pi}} \right) - \frac{1}{2} \sum \limits_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2$$
+
+Then, argue that the log likelihood (or equivalently the likelihood) is maximized if we *minimize* the residual sum of squares:
+
+$$SSE = \sum \limits_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2$$
+:::
 
 # Reading a research paper
 
