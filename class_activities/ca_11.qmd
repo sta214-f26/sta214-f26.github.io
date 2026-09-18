@@ -11,7 +11,7 @@ format: html
 
 ## SBA data
 
-In this class activity, we will assess predictive performance with the SBA data. Recall the SBA data contains the following variables:
+The US Small Business Administration (SBA) helps guarantee loans from small businesses. We are interested in predicting whether a business is likely to *default* on their loan (fail to repay the loan), using some information about the loan and the business.
 
 * `Default`: whether the business defaulted on the loan (1 = yes, 0 = no)
 * `UrbanRural`: 1 if business is in urban area, 2 if business is in rural area, 0 if unknown
