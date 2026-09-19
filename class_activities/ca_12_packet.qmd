@@ -1,0 +1,137 @@
+---
+title: "Information packet"
+format: 
+  pdf:
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+editor: source
+---
+
+\vspace{-2.5cm}
+
+```{r setup, include=F}
+library(tidyverse)
+library(patchwork)
+
+ct <- read_csv("https://cmustatistics.github.io/data-repository/data/core-temperature.csv")
+```
+
+# Variable descriptions
+
+| Variable | Description |
+|----|-------------|
+| YEAR | Year of surgery |
+| Age | Patient's age at the time of the surgery |
+| FEMALE | Patient's sex at birth (1 = female, 0 = male) |
+| BMI | Patient's body mass index (BMI) at time of surgery |
+| CharlsonScore | Patient's Charlson Comorbidity Index score (higher numbers indicate more comorbidities that could lead to death) |
+| SurgeryType | This was meant to record the type of surgery (such as colostomy, ileostomy, or other procedures)|
+| CHF | Does the patient have a history of congestive heart failure? (1 = yes, 0 = no) |
+| VALVE | Does the patient have a history of peripheral vascular disease? (1 = yes, 0 = no) |
+| RENLFAIL | Does the patient have a history of renal failure? (1 = yes, 0 = no) |
+| LIVER | Does the patient have a history of liver disease? (1 = yes, 0 = no) |
+| METS | Does the patient have cancer that has metastasized? (1 = yes, 0 = no) |
+| TUMOR | Does the patient have a solid tumor that has *not* metastasized? (1 = yes, 0 = no) |
+| COAG | Does the patient have coagulopathy (a blood clotting disorder)? (1 = yes, 0 = no) |
+| OBESE | Is the patient obese? (Definition not specified; 1 = yes, 0 = no) |
+| LYTES | Does the patient have fluid or electrolyte disorders? (1 = yes, 0 = no) |
+| BLDLOSS | Does the patient have chronic blood loss anemia? (1 = yes, 0 = no) |
+| ANEMDEF | Does the patient have a deficiency anemia? (1 = yes, 0 = no) |
+| DRUG | Does the patient abuse drugs? (1 = yes, 0 = no) |
+| SteroidHx | Did the patient use steroid drugs before surgery? (1 = yes, 0 = no) |
+| ImmunosuppressantHx | Did the patient use immunosuppressive drugs before surgery? (1 = yes, 0 = no) |
+| SurgDuration | Duration of the surgery, in minutes |
+| Open | Type of surgery. 1 = open surgery, 0 = laparoscopic ("minimally invasive") surgery. |
+| DelayedHealing | Was the patient's healing after surgery delayed? (1 = yes, 0 = no) |
+| TWATemp | Time weighted average of the patient's core temperature during surgery, °C |
+| LastReadingTemp | Last recorded core temperature prior to surgery, °C |
+| EndCaseTemp | Patient's core temperature at the end of surgery, °C |
+| SeriousInfection | Did the patient develop a serious infection within 30 days of surgery? This includes the infections in the SSIDeep(fascia), SSIOrganSpace, AbsessIntraAb, AbsessPelvic, Cdiff, Pneumonia, Pneumonia(aspiration), and Sepsis variables. (1 = yes, 0 = no) |
+| SuperficialInfection | Did the patient develop a superficial infection within 30 days of surgery? This includes the infections in the SSISuperficial(skin), WoundInfection, and FascialDehiscence variables, as well as perineal wound problems. (1 = yes, 0 = no) |
+| DurationHosp | Time the patient stayed in the hospital after surgery, in days |
+| LOS | Time the patient stayed in the hospital, including time before surgery, in days |
+| DEAD | Did the patient die in the hospital? (1 = yes, 0 = no) |
+
+
+\newpage
+
+# Summary of variables
+
+```{r, echo=F}
+ct |>
+  select(YEAR, Age, FEMALE, SurgeryType, BMI,
+         CharlsonScore, CHF, VALVE, RENLFAIL, LIVER, METS, TUMOR, COAG, OBESE, LYTES, SurgDuration, Open, TWATemp, LastReadingTemp, EndCaseTemp, SeriousInfection,
+         SuperficialInfection, DurationHosp, LOS, DEAD) |>
+  gtsummary::tbl_summary()
+```
+
+
+
+# Plots
+
+```{r echo=F, message=F, warning=F, fig.width=9, fig.height=7}
+p1 <- ct |>
+  ggplot(aes(x = Age)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p2 <- ct |>
+  ggplot(aes(x = BMI)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p3 <- ct |>
+  ggplot(aes(x = CharlsonScore)) +
+  geom_bar(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p4 <- ct |>
+  ggplot(aes(x = TWATemp)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p5 <- ct |>
+  ggplot(aes(x = EndCaseTemp)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p6 <- ct |>
+  ggplot(aes(x = LastReadingTemp)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p7 <- ct |>
+  ggplot(aes(x = SurgDuration)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+p8 <- ct |>
+  ggplot(aes(x = DurationHosp)) +
+  geom_histogram(fill = "lightgrey", color = "black") +
+  theme_classic()
+
+(p1 + p2 + p3)/(p4 + p5 + p6)/(p7 + p8 + plot_spacer())
+```
+
+```{r, echo=F, fig.width=9, fig.height=3}
+p1 <- ct |>
+  ggplot(aes(x = TWATemp, y = LastReadingTemp)) +
+  geom_point(size=0.5) +
+  theme_bw()
+
+p2 <- ct |>
+  ggplot(aes(x = TWATemp, y = EndCaseTemp)) +
+  geom_point(size = 0.5) +
+  theme_bw()
+
+p3 <- ct |>
+  ggplot(aes(x = LastReadingTemp, y = EndCaseTemp)) +
+  geom_point(size = 0.5) +
+  theme_bw()
+
+p1 + p2 + p3
+```
+
+
+
