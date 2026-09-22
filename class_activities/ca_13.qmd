@@ -1,0 +1,164 @@
+---
+title: "Class activity: bootstrap resampling"
+format: html
+---
+
+**Instructions:** 
+
+* Work individually or with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_13_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+## Dengue data
+
+Examining the dengue data, we create boxplots showing the difference in WBC between positive and negative dengue cases:
+
+```{r message=F, warning=F}
+library(tidyverse)
+
+dengue <- read_csv("https://sta214-f26.github.io/homework/dengue.csv")
+
+dengue |>
+  ggplot(aes(x = as.factor(Dengue), y = WBC)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Dengue")
+```
+
+To measure the difference in WBC between the two groups, we can compare the means from each group:
+
+$$\overline{WBC}_1 - \overline{WBC}_0$$
+
+Computing this difference in R:
+
+```{r}
+dengue |>
+  summarize(mean_diff = mean(WBC[Dengue == 1]) - mean(WBC[Dengue == 0])) |>
+  as.numeric() # convert the result to a number, not data frame
+```
+
+Of course, if we collected another sample and computed the difference in means again, we would get a different value!
+
+**Our question:** how much does $\overline{WBC}_1 - \overline{WBC}_0$ **vary from sample to sample?**
+
+## Bootstrap resampling
+
+We typically can't collect a new sample of data. However, we can **resample** (with replacement) from our *existing* sample of data. This process is called **bootstrap resampling**.
+
+### Step 1: Resample with replacement
+
+To create our bootstrap sample, we will sample with replacement from the rows of the dengue data.
+
+1. Run the following code to generate a bootstrap sample.
+
+```{r}
+dengue_boot <- dengue |>
+  sample_n(size = n(), replace=T)
+```
+
+### Step 2: Re-compute the statistic of interest
+
+Now we need to recompute the statistic of interest, in this case the difference in means.
+
+2. Re-make the boxplots with your bootstrap sample (`dengue_boot`). Does the boxplot look similar or different to the plot created from the original data?
+
+3. Re-calculate the difference in means ($\overline{WBC}_1 - \overline{WBC}_0$), using data from the bootstrap sample (`dengue_boot`).
+
+### Step 3: Repeating many times!
+
+Just one bootstrap sample hardly helps us estimate variability. We need many bootstrap samples!
+
+To do this, we will use a programming tool called a **loop**. In a loop, we repeat the same process a specified number of times.
+
+The code below provides the general structure for a loop in R. In this case, we will repeat the whole bootstrap process `n_boot = 1000` times.
+
+```{r, eval=F}
+# desired number of bootstrap samples
+n_boot = 1000
+
+# create a vector in which to store the bootstrap samples
+boot_ests <- rep(NA, n_boot)
+
+# do the bootstrapping
+for(i in 1:n_boot){
+  # fill in the code to create a bootstrap sample 
+  # (question 1)
+  ...
+  
+  # fill in the code to re-calculate the difference in means
+  # (question 3). We will store the difference in the
+  # boot_ests vector
+  boot_ests[i] <- ...
+}
+
+# make a histogram of the results
+hist(boot_ests)
+```
+
+```{r, include=F}
+# desired number of bootstrap samples
+n_boot = 1000
+
+# create a vector in which to store the bootstrap samples
+boot_ests <- rep(NA, n_boot)
+
+# do the bootstrapping
+for(i in 1:n_boot){
+  # fill in the code to create a bootstrap sample 
+  # (question 1)
+  dengue_boot <- dengue |>
+    sample_n(size = n(), replace=T)
+  
+  # fill in the code to re-calculate the difference in means
+  # (question 3). We will store the difference in the
+  # boot_ests vector
+  boot_ests[i] <- dengue_boot |>
+    summarize(mean_diff = mean(WBC[Dengue == 1]) - 
+                          mean(WBC[Dengue == 0])) |>
+    as.numeric()
+}
+
+# make a histogram of the results
+hist(boot_ests)
+```
+
+4. Fill in the code (replace the `...` with appropriate code from questions 1 and 3), and run it.
+
+5. Compute the standard deviation of the `boot_ests`. This is our estimate of the standard error of the difference in means, $SE(\overline{WBC}_1 - \overline{WBC}_0)$.
+
+6. Look at the shape of the histogram. What does that distribution look like?
+
+### Step 4: using the results
+
+Now let's use the bootstrap results to get a 95% confidence interval for the true difference in means ($\mu_1 - \mu_0$).
+
+There are multiple ways we could try to do this. We will look at the **bootstrap percentile interval** and the **bootstrap t interval**.
+
+#### Bootstrap percentile interval
+
+A 95% bootstrap percentile interval is the range from the 2.5th percentile to the 97.5th percentile (the middle 95% of the bootstrap samples).
+
+7. Run the code below in R to get the percentile interval:
+
+```{r, eval=F}
+quantile(boot_ests, c(0.025, 0.975))
+```
+
+
+#### Normal interval with bootstrap SE
+
+The Normal interval is based on the fact that the bootstrap distribution has an approximately normal distribution; we just use the bootstrap to estimate the standard error. In this case, the bootstrap interval is
+
+$$(\overline{WBC}_1 - \overline{WBC}_0) \pm z^* SE(\overline{WBC}_1 - \overline{WBC}_0)$$
+
+* We calculated the first piece, $\overline{WBC}_1 - \overline{WBC}_0$, at the start: -4.36.
+
+* We estimated the standard error in question 5.
+
+* $z^*$ is the critical value for the desired confidence level (in this case, we want a 95% confidence level). For a 95% CI, $z^* = 1.96$
+
+8. Using this information, calculate the Normal bootstrap interval and compare with the percentile interval.
+
+
+
+

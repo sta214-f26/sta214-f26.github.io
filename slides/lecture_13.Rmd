@@ -1,0 +1,209 @@
+---
+title: Inference
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Motivation
+
+```{r message=F, warning=F, echo=F, fig.width=6, fig.height=4}
+library(tidyverse)
+
+dengue <- read_csv("https://sta214-f26.github.io/homework/dengue.csv")
+
+dengue |>
+  ggplot(aes(x = as.factor(Dengue), y = WBC)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Dengue")
+```
+
+.large[
+It looks like there is a difference in WBC between positive and negative dengue cases.
+
+.question[
+How would we assess whether this is real, or due to chance?
+]
+]
+
+---
+
+### Motivation
+
+.large[
+Let $\mu_0$ be population mean WBC for non-dengue cases, and $\mu_1$ be population mean WBC for dengue cases.
+
+**Want:** $\mu_1 - \mu_0$
+
+**Estimate:** $$\overline{WBC}_1 - \overline{WBC}_0 = -4.36$$
+
+.question[
+How do we account for variability between samples??
+]
+]
+
+---
+
+### Confidence interval
+
+.large[
+A **confidence interval** gives a "reasonable range" of values for an unknown parameter.
+
+**Want:** $\mu_1 - \mu_0$
+
+**Estimate:** $$\overline{WBC}_1 - \overline{WBC}_0 = -4.36$$
+
+**Confidence interval:**
+]
+
+
+---
+
+### Bootstrap resampling
+
+---
+
+### Bootstrap resampling
+
+```{r message=F, warning=F, echo=F, fig.width=10, fig.height=4}
+library(patchwork)
+
+set.seed(4)
+
+p1 <- dengue |>
+  ggplot(aes(x = as.factor(Dengue), y = WBC)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Dengue")
+
+dengue_boot <- dengue |>
+  sample_n(size = n(), replace=T) # -4.47
+
+p2 <- dengue_boot |>
+  ggplot(aes(x = as.factor(Dengue), y = WBC)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Dengue")
+
+p1 + p2
+```
+
+---
+
+### Activity
+
+.large[
+* Work on the class activity (linked on Canvas and course website)
+* Submit rendered HTML on Canvas at the end of class
+]
+
+---
+
+### Activity
+
+.center[
+```{r, echo=F, fig.width = 6, fig.height=4}
+# desired number of bootstrap samples
+n_boot = 1000
+
+# create a vector in which to store the bootstrap samples
+boot_ests <- rep(NA, n_boot)
+
+# do the bootstrapping
+for(i in 1:n_boot){
+  # fill in the code to create a bootstrap sample 
+  # (question 1)
+  dengue_boot <- dengue |>
+    sample_n(size = n(), replace=T)
+  
+  # fill in the code to re-calculate the difference in means
+  # (question 3). We will store the difference in the
+  # boot_ests vector
+  boot_ests[i] <- dengue_boot |>
+    summarize(mean_diff = mean(WBC[Dengue == 1]) - 
+                          mean(WBC[Dengue == 0])) |>
+    as.numeric()
+}
+
+# make a histogram of the results
+hist(boot_ests)
+```
+
+.large[
+.question[
+Based on the bootstrap samples, what would be a reasonable range of values for the difference in means?
+]
+]
+]
+
+---
+
+### Activity
+
+.center[
+```{r, echo=F, fig.width = 6, fig.height=4}
+# make a histogram of the results
+hist(boot_ests)
+```
+
+.large[
+.question[
+What does the distribution look like?
+]
+]
+]
+
+---
+
+### Activity
+
+.large[
+Bootstrap percentile interval:
+
+```{r}
+quantile(boot_ests, c(0.025, 0.975))
+```
+
+Normal interval with bootstrap SE:
+
+```{r}
+-4.36 - 1.96*sd(boot_ests)
+-4.36 + 1.96*sd(boot_ests)
+```
+
+]
+
+---
+
+### Activity
+
+.large[
+Comparison with the usual formula:
+
+$$\widehat{SE}(\overline{X}_1 - \overline{X}_0) = \sqrt{\frac{s_1^2}{n_1} + \frac{s_0^2}{n_0}}$$
+]
+
+```{r}
+sqrt(var(dengue$WBC[dengue$Dengue == 1])/sum(dengue$Dengue == 1) +
+       var(dengue$WBC[dengue$Dengue == 0])/sum(dengue$Dengue == 0))
+```
+
+.large[
+Bootstrap estimate of standard error:
+]
+
+```{r}
+sd(boot_ests)
+```
+
+
+]
+
