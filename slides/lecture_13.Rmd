@@ -73,6 +73,34 @@ A **confidence interval** gives a "reasonable range" of values for an unknown pa
 
 ### Bootstrap resampling
 
+.large[
+A small subset of the original data:
+
+```{r, echo=F}
+set.seed(8234)
+dengue_sub <- dengue |>
+  select(WBC, PLT, Age, Dengue) |>
+  sample_n(5, replace=F)
+
+as.data.frame(dengue_sub |> sample_n(5, replace=F))
+```
+
+A bootstramp sample of these rows:
+
+```{r, echo=F}
+dengue_sub |>
+  sample_n(5, replace=T) |>
+  data.frame()
+```
+
+
+
+]
+
+---
+
+### Bootstrap resampling
+
 ```{r message=F, warning=F, echo=F, fig.width=10, fig.height=4}
 library(patchwork)
 

@@ -132,7 +132,7 @@ hist(boot_ests)
 
 Now let's use the bootstrap results to get a 95% confidence interval for the true difference in means ($\mu_1 - \mu_0$).
 
-There are multiple ways we could try to do this. We will look at the **bootstrap percentile interval** and the **bootstrap t interval**.
+There are multiple ways we could try to do this. We will look at the **bootstrap percentile interval** and the **Normal interval with bootstrap standard errors**.
 
 #### Bootstrap percentile interval
 

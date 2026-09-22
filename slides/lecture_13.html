@@ -68,7 +68,40 @@ A **confidence interval** gives a "reasonable range" of values for an unknown pa
 
 ### Bootstrap resampling
 
-![](lecture_13_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+.large[
+A small subset of the original data:
+
+
+```
+##     WBC PLT Age Dengue
+## 1  5.10 183   3      0
+## 2 10.20 279   5      0
+## 3  6.48 195   5      0
+## 4  7.54 269   3      0
+## 5  3.60 191   5      1
+```
+
+A bootstramp sample of these rows:
+
+
+```
+##    WBC PLT Age Dengue
+## 1 5.10 183   3      0
+## 2 6.48 195   5      0
+## 3 6.48 195   5      0
+## 4 3.60 191   5      1
+## 5 5.10 183   3      0
+```
+
+
+
+]
+
+---
+
+### Bootstrap resampling
+
+![](lecture_13_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -84,7 +117,7 @@ A **confidence interval** gives a "reasonable range" of values for an unknown pa
 ### Activity
 
 .center[
-![](lecture_13_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+![](lecture_13_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
 
 .large[
 .question[
@@ -98,7 +131,7 @@ Based on the bootstrap samples, what would be a reasonable range of values for t
 ### Activity
 
 .center[
-![](lecture_13_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+![](lecture_13_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
 
 .large[
 .question[
