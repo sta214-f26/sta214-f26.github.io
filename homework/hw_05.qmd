@@ -29,7 +29,7 @@ When you have completed the assignment, render your homework to HTML and submit 
 
 In class, we looked at creating a confidence interval for the difference in mean WBC between dengue and non-dengue patients. Here is the complete code from that class activity:
 
-```{r, include=F}
+```{r, eval=F}
 library(tidyverse)
 
 # read in the dengue data
@@ -71,6 +71,14 @@ quantile(boot_ests, c(0.025, 0.975))
 mean_difference - 1.96*sd(boot_ests)
 mean_difference + 1.96*sd(boot_ests)
 ```
+
+```{r, include=F}
+library(tidyverse)
+
+# read in the dengue data
+dengue <- read_csv("https://sta214-f26.github.io/homework/dengue.csv")
+```
+
 
 ## Logistic regression
 
