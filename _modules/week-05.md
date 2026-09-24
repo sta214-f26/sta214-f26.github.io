@@ -11,6 +11,7 @@ September 23
   : [slides](https://sta214-f26.github.io/slides/lecture_13.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_13.html)
   
 September 25
-: Inference with logistic regression
+: Bootstrap resampling -- HW 5 lab day
 
 : **Homework 5 released**{: .label .label-yellow }
+  : [HW 5](https://sta214-f26.github.io/homework/hw_05.html)

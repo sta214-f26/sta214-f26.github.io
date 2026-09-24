@@ -1,0 +1,237 @@
+---
+title: "Homework 5"
+format: html
+callout-icon: false
+---
+
+**Due:** Friday, October 2, 11:59pm on Canvas
+
+**Instructions:** 
+
+Begin by downloading the HW 5 template from the course website:
+
+[https://sta214-f26.github.io/homework/hw_05_template.qmd](https://sta214-f26.github.io/homework/hw_05_template.qmd)
+
+Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks.
+
+When you have completed the assignment, render your homework to HTML and submit on Canvas. *You must submit the rendered HTML on Canvas to receive full credit!*
+
+**Collaborators and AI statement:** At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.
+
+**Code guidelines:**
+
+* If a question requires code, and code is not provided, you will not receive full credit
+* You will be graded on the quality of your code. In addition to being correct, your code should also be easy to read
+
+# Bootstrap confidence intervals for a regression coefficient
+
+## Previously
+
+In class, we looked at creating a confidence interval for the difference in mean WBC between dengue and non-dengue patients. Here is the complete code from that class activity:
+
+```{r, include=F}
+library(tidyverse)
+
+# read in the dengue data
+dengue <- read_csv("https://sta214-f26.github.io/homework/dengue.csv")
+
+# estimated difference on the original data
+mean_difference <- dengue |>
+  summarize(mean_diff = mean(WBC[Dengue == 1]) - 
+              mean(WBC[Dengue == 0])) |>
+  as.numeric()
+
+# desired number of bootstrap samples
+n_boot = 1000
+
+# create a vector in which to store the bootstrap samples
+boot_ests <- rep(NA, n_boot)
+
+# do the bootstrapping
+for(i in 1:n_boot){
+  # create a bootstrap sample 
+  dengue_boot <- dengue |>
+    sample_n(size = n(), replace=T)
+  
+  #re-calculate the difference in means
+  # We will store the difference in the boot_ests vector
+  boot_ests[i] <- dengue_boot |>
+    summarize(mean_diff = mean(WBC[Dengue == 1]) - 
+                          mean(WBC[Dengue == 0])) |>
+    as.numeric()
+}
+
+# make a histogram of the results
+hist(boot_ests)
+
+# bootstrap percentile interval
+quantile(boot_ests, c(0.025, 0.975))
+
+# normal interval with bootstrap SE
+mean_difference - 1.96*sd(boot_ests)
+mean_difference + 1.96*sd(boot_ests)
+```
+
+## Logistic regression
+
+Now instead of looking at the difference in mean WBC between dengue and non-dengue patients, suppose we want to fit a logistic regression model. We decide to fit the following model:
+
+$$
+\begin{aligned}
+\text{Dengue}_i &\sim Bernoulli(\pi_i) \\
+\log \left( \frac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{Age}_i + \beta_2 \text{WBC}_i + \beta_3 \text{PLT}_i
+\end{aligned}
+$$
+
+::: {.callout-tip}
+## Question 1
+
+Fit this logistic regression in R, and report the estimated coefficients.
+
+:::
+
+```{r, include=F}
+m1 <- glm(Dengue ~ Age + WBC + PLT, data = dengue,
+          family = binomial)
+
+coef(m1)
+```
+
+## Effect of Age
+
+Our estimated coefficient on Age is $\widehat{\beta}_1 = 0.138$. However, this estimate is based on a sample from the population, so will not be exactly equal to the true value of the parameter $\beta_1$.
+
+In addition to our *point estimate* $\widehat{\beta}_1$, we would like an *interval* estimate that captures the amount of variability in $\widehat{\beta}_1$ between samples.
+
+A **confidence interval** provides a reasonable range of values for an unknown population parameter. The usual confidence interval for $\beta_1$ in a logistic regression model looks like:
+
+$$\widehat{\beta}_1 \pm z^* SE_{\widehat{\beta}_1}$$
+
+where $z^*$ is the critical value for our desired confidence level, and $SE_{\widehat{\beta}_1}$ is the standard error of the estimated coefficient.
+
+Let's suppose we want to make a 95% confidence interval for $\beta_1$; then $z^* = 1.96$. However, we still need to get the standard error!
+
+## Bootstrap sample
+
+We will use bootstrap resampling to estimate the standard error of $\widehat{\beta}_1$. 
+
+::: {.callout-tip}
+## Question 2
+
+Use the `sample_n` function to take a bootstrap sample of the dengue data; call your bootstrap sample `dengue_boot`.
+:::
+
+::: {.callout-tip}
+## Question 3
+
+Re-fit the logistic regression model on your bootstrap sample, and report the estimated coefficients.
+:::
+
+## Repeating the process
+
+Of course, just one bootstrap sample doesn't tell us much about variability! We need to repeat the process many times. 
+
+::: {.callout-tip}
+## Question 4
+
+Adapt the code from the class activity to compute and store $\widehat{\beta}_1$ for 1000 different bootstrap samples. 
+
+**Note:** You will need code to extract the coefficient on Age from your fitted models (so you don't have to manually write down the coefficient each time!). If you called your model `m_boot`, and Age was the first explanatory variable included in the model, then `coef(m_boot)[2]` would extract the Age coefficient.
+:::
+
+::: {.callout-tip}
+## Question 5
+
+Create a histogram of the bootstrap estimates. What does the distribution look like?
+:::
+
+## Creating a confidence interval
+
+::: {.callout-tip}
+## Question 6
+
+Use your 1000 bootstrap samples from the previous question to compute a Normal 95% confidence interval for $\beta_1$ with bootstrap standard error.
+
+:::
+
+::: {.callout-tip}
+## Question 7
+
+Interpret the confidence interval from question 6.
+:::
+
+## Another way of estimating standard error
+
+Bootstrap resampling gives us a nice way to estimate standard errors. However, it requires us to write and run the bootstrapping code. 
+
+Rather than bootstrap, there are sometimes mathematical approximations to standard errors. For $SE_{\widehat{\beta}}$, R actually reports these approximations by default!
+
+Here are the estimated coefficients for the fitted model on the *original* data:
+
+```{r, echo = F}
+m_dengue <- glm(Dengue ~ Age + WBC + PLT, data = dengue,
+          family = binomial)
+
+summary(m_dengue)$coefficients
+```
+
+The second column (`Std. Error`) contains estimated standard errors for each coefficient.
+
+::: {.callout-tip}
+## Question 8
+
+How does the estimated standard error in the R output compare to your estimate from bootstrap resampling?
+:::
+
+
+::: {.callout-tip}
+## Question 9
+
+Using the estimated standard error from the R output, **create and interpret** a 95% confidence interval for $\beta_1$.
+:::
+
+# Bootstrap confidence intervals for a probability
+
+## Grad admissions data
+
+In this part of the assignment, you will work with data on 400 applicants to graduate school. For each applicant, we have:
+
+* `admit`: whether they were admitted to a graduate program (0 = no, 1 = yes)
+* `gre`: their GRE score (out of 800)
+* `gpa`: their undergraduate GPA (out of 4.0)
+* `rank`: a proxy for school prestige (1 = most prestigious, 4 = least prestigious)
+
+The data can be downloaded in R with:
+
+```{r}
+grad_app <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+```
+
+## Predicting a probability
+
+Your friend is applying to graduate school, and wants you to predict their probability of acceptance. Your friend attends a school of Rank 3, and has an undergraduate GPA of 3.95. They took the GRE over the summer and received an average score (590).
+
+::: {.callout-tip}
+## Question 10
+
+Fit a logistic regression model to predict graduate school acceptance, using the `grad_app` data. Don't forget to treat school rank as a *categorical* variable!
+:::
+
+::: {.callout-tip}
+## Question 11
+
+Using your fitted model, calculate the predicted probability of acceptance for your friend.
+:::
+
+## Creating a confidence interval
+
+::: {.callout-tip}
+## Question 12
+
+Use bootstrap resampling to **create and interpret** a 95% confidence interval for the true probability of acceptance for your friend.
+:::
+
+
+
+
+
