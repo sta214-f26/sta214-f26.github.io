@@ -1,0 +1,187 @@
+---
+title: "Class activity: parametric bootstrap null distribution"
+format: html
+callout-icon: false
+---
+
+**Instructions:** 
+
+* Work individually or with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_14_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+## Setup
+
+In this activity, you will work with data on 400 applicants to graduate school. For each applicant, we have:
+
+* `admit`: whether they were admitted to a graduate program (0 = no, 1 = yes)
+* `gre`: their GRE score (out of 800)
+* `gpa`: their undergraduate GPA (out of 4.0)
+* `rank`: a proxy for school prestige (1 = most prestigious, 4 = least prestigious)
+
+The data can be downloaded in R with:
+
+```{r}
+grad_app <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+```
+
+## Research question
+
+We decide to use the logistic regression model
+
+$$
+\begin{aligned}
+\text{Admit}_i &\sim Bernoulli(\pi_i) \\
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+We fit the model in R:
+
+```{r}
+m_full <- glm(admit ~ gpa + gre + as.factor(rank),
+              family = binomial, data = grad_app)
+
+summary(m_full)
+```
+
+
+**Research question:** Is there a relationship between GRE and grad school acceptance, after accounting for GPA and school rank?
+
+### Hypothesis testing
+
+To answer this research question, we want to test the hypotheses
+
+$$H_0: \beta_2 = 0 \hspace{1cm} H_A: \beta_2 \neq 0$$
+
+Our test statistic is
+
+$$Z = \frac{\widehat{\beta}_2 - 0}{SE_{\widehat{\beta}_2}}$$
+
+Using the output of the fitted model above,
+
+$$Z = \frac{0.002264}{0.001094} = 2.07$$
+
+We then want to know: **how unusual is this test statistic, if in fact the null hypothesis is actually true?**
+
+## Parametric bootstrapping
+
+To determine whether the observed value of $Z$ is unusual under $H_0$, we need the **null distribution** of our test statistic. We will use **parametric bootstrapping** to assess whether $Z = 2.07$ is consistent with $H_0$, or is unusual.
+
+### Step 1: Fit a model that assumes $H_0$ is true
+
+**If** $H_0$ is true, then we don't need $\text{GRE}$ in the model
+
+::: {.callout-tip}
+## Question 1
+
+Fit another logistic regression model to the `grad_app` data, and call this new model `m_reduced`. (This is a *reduced* model because it is smaller than the *full* model that we fit above). Your reduced model should include GPA and school rank, but *not* GRE score.
+
+```{r eval=F}
+m_reduced <- glm(...,
+                 family = binomial, data = grad_app)
+```
+
+
+:::
+
+### Step 2: Use the fitted model to generate new responses
+
+Now we will use our reduced model to generate new responses $\text{Admit}_1^*,...,\text{Admit}_n^*$. Because these new responses are generated from our reduced model, we know that they have no relation with GRE score!
+
+::: {.callout-tip}
+## Question 2
+
+Use the code below to generate the new responses:
+
+```{r, eval=F}
+admit_star <- rbinom(n = length(m_reduced$y), 
+                     size = 1,
+                     p = m_reduced$fitted.values)
+
+sim_data <- grad_app |>
+  mutate(admit_star = admit_star)
+```
+
+:::
+
+### Step 3: *Re-fit* the full model with the simulated responses
+
+Our simulated data (`sim_data`) now contains a response (`admit_star`) that is created to be unrelated to GRE score -- that is, we have forced $H_0$ to be true! To see how $\widehat{\beta}_2$ and the test statistic $Z$ behave in this situation, we need to **re-fit** the **full** model on this simulated data.
+
+::: {.callout-tip}
+## Question 3
+
+Re-fit the full model on the simulated data (`sim_data`), and call the new fitted model `m_full_sim`. You should use GPA, GRE, and school rank as the explanatory variables, and $\text{Admit}^*$ (`admit_star`) as the response.
+
+```{r, eval=F}
+m_full_sim <- glm(...,
+                  family = binomial, data = sim_data)
+```
+
+:::
+
+### Step 4: Recompute the test statistic
+
+::: {.callout-tip}
+## Question 4
+
+Recompute $Z = \dfrac{\widehat{\beta}_2}{SE_{\widehat{\beta}_2}}$ from the model you fit in question 3 (`m_full_sim`). How does the test statistic compare to value computed on the original data (2.07)?
+:::
+
+### Step 5: Repeat many times!
+
+We want a *distribution* for $Z$ under $H_0$, so we need to repeat many times. The following code will approximate the null distribution of $Z$ with 5000 parametric bootstrap samples, and make a histogram:
+
+```{r, eval=F}
+nsim <- 5000
+parametric_boot_stats <- rep(NA, nsim)
+
+for(i in 1:nsim){
+  admit_star <- rbinom(n = length(m_reduced$y),  
+                       size = 1, 
+                       p = m_reduced$fitted.values)
+  
+  sim_data <- grad_app |>
+    mutate(admit_star = admit_star)
+  
+  m_full_sim <- glm(admit_star ~ gpa + gre + as.factor(rank),
+                    family = binomial, data = sim_data)
+  
+  parametric_boot_stats[i] <- summary(m_full_sim)$coefficients[3, 3]
+}
+
+hist(parametric_boot_stats)
+```
+
+::: {.callout-tip}
+## Question 5
+
+What does the null distribution of $Z$ look like? Is a value of 2.07 unusual for this distribution?
+
+:::
+
+### Step 6: Approximate a p-value
+
+Finally, we will use the parametric bootstrap null distribution to approximate a p-value for our original test statistic. 
+
+Remember that a p-value measures the probability of a value "as or more extreme" as the observed test statistic. In our case, the alternative hypothesis is $H_A: \beta_2 \neq 0$, so a value "as or more extreme" could be either $> 2.07$ or $< -2.07$.
+
+In other words, we want $P(|Z| > 2.07 \ | \ H_0)$.
+
+::: {.callout-tip}
+## Question 6
+
+The following code will calculate the p-value:
+
+```{r, eval=F}
+mean(abs(parametric_boot_stats) > 2.07)
+```
+
+Report the p-value. Would you reject or fail to reject our null hypothesis $H_0: \beta_2 = 0$?
+
+:::
+
+
+

@@ -1,0 +1,289 @@
+---
+title: Inference
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+grad_app <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+```
+
+### Grad admissions data
+
+.large[
+Interested in predicting grad admission from GPA, GRE score, and school rank:
+
+$$
+\begin{aligned}
+\text{Admit}_i &\sim Bernoulli(\pi_i) \\
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+.question[
+Suppose we want to estimate the effect of GRE, after accounting for GPA and school rank. How would I compute a confidence interval for $\beta_2$?
+]
+]
+
+---
+
+### Previously: confidence intervals
+
+.large[
+Normal confidence interval for $\beta_2$:
+
+$$\widehat{\beta}_2 \pm z^* SE_{\widehat{\beta}_2}$$
+
+Options for estimating $SE_{\widehat{\beta}_2}$:
+
+* Bootstrap estimate of standard error
+* Estimate of standard error from R output
+]
+
+---
+
+### Confidence interval
+
+```{r, include=F}
+m1 <- glm(admit ~ gpa + gre + as.factor(rank),
+          family = binomial, data = grad_app)
+summary(m1)
+```
+
+```
+                     Estimate  Std. Error   z value     Pr(>|z|)
+(Intercept)      -3.989979073 1.139950936 -3.500132 0.0004650273
+gpa               0.804037549 0.331819298  2.423119 0.0153878974
+gre               0.002264426 0.001093998  2.069864 0.0384651284
+as.factor(rank)2 -0.675442928 0.316489661 -2.134171 0.0328288188
+as.factor(rank)3 -1.340203916 0.345306418 -3.881202 0.0001039415
+as.factor(rank)4 -1.551463677 0.417831633 -3.713131 0.0002047107
+```
+
+<br/>
+
+<br/>
+
+<br/>
+
+.large[
+.question[
+How do I interpret this confidence interval?
+]
+]
+
+---
+
+### Another question
+
+.large[
+$$
+\begin{aligned}
+\text{Admit}_i &\sim Bernoulli(\pi_i) \\
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+**Research question:** Is there a relationship between GRE and grad school acceptance, after accounting for GPA and school rank?
+
+.question[
+How could we address this research question?
+]
+]
+
+---
+
+### Hypothesis testing
+
+.large[
+.question[
+What steps are involved in hypothesis testing?
+]
+]
+
+---
+
+### Specifying the hypotheses
+
+.large[
+$$
+\begin{aligned}
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+**Research question:** Is there a relationship between GRE and grad school acceptance, after accounting for GPA and school rank?
+
+$H_0$:
+
+<br/>
+
+$H_A$:
+]
+
+---
+
+### Confidence intervals and hypothesis testing
+
+.large[
+**Research question:** Is there a relationship between GRE and grad school acceptance, after accounting for GPA and school rank?
+
+$H_0: \beta_2 = 0 \hspace{1cm} H_A: \beta_2 \neq 0$
+
+Recall that we would **reject** $H_0$ at significance level $\alpha$ if and only if a $(1 - \alpha)100\%$ confidence interval for $\beta_2$ **does not** contain 0. (Equivalently, a $(1 - \alpha)100%$ confidence interval for $e^{\beta_2}$ **does not** contain 1).
+]
+
+---
+
+### Computing a p-value
+
+.large[
+To compute a p-value, we need:
+
+* a test statistic
+* the distribution of the test statistic **if** $H_0$ **were correct**
+
+.question[
+What test statistic did we use for testing single coefficients in *linear* models?
+]
+]
+
+---
+
+### The null distribution
+
+.large[
+To compute a p-value, we need the **null distribution** (distribution of the test statistic under $H_0$).
+
+.question[
+Does *bootstrap resampling* (what we used to create a confidence interval) give us the **null** distribution?
+]
+]
+
+---
+
+### Parametric bootstrapping
+
+---
+
+### Class activity
+
+.large[
+* Work on the class activity (linked on Canvas and course website)
+* Submit rendered HTML on Canvas at the end of class
+]
+
+---
+
+### Activity
+
+```{r param_boot, cache=T, echo=F, fig.width=8, fig.height=5}
+m_full <- glm(admit ~ gpa + gre + as.factor(rank),
+              family = binomial, data = grad_app)
+
+m_reduced <- glm(admit ~ gpa + as.factor(rank),
+                 family = binomial, data = grad_app)
+
+nsim <- 5000
+parametric_boot_stats <- rep(NA, nsim)
+
+for(i in 1:nsim){
+  admit_star <- rbinom(n = length(m_reduced$y),  
+                       size = 1, 
+                       p = m_reduced$fitted.values)
+  
+  sim_data <- grad_app |>
+    mutate(admit_star = admit_star)
+  
+  m_full_sim <- glm(admit_star ~ gpa + gre + as.factor(rank),
+                    family = binomial, data = sim_data)
+  
+  parametric_boot_stats[i] <- summary(m_full_sim)$coefficients[3, 3]
+}
+
+hist(parametric_boot_stats, xlim = c(-3.5, 3.5))
+```
+
+.large[
+.question[
+What does this distribution look like?
+]
+]
+
+---
+
+### Activity
+
+```{r echo=F, fig.width=8, fig.height=5}
+hist(parametric_boot_stats, xlim = c(-3.5, 3.5))
+```
+
+.large[
+.question[
+How unusual is the observed test statistic of 2.07, compared to this null distribution?
+]
+]
+
+---
+
+### p-value
+
+```{r echo=F, fig.width=8, fig.height=5}
+hist(parametric_boot_stats, xlim = c(-3.5, 3.5))
+```
+
+.large[
+```{r}
+mean(abs(parametric_boot_stats) > 2.07)
+```
+]
+
+---
+
+### p-value
+
+```{r}
+mean(abs(parametric_boot_stats) > 2.07)
+
+summary(m_full)$coefficients
+```
+
+
+
+
+
