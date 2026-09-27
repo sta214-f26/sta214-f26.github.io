@@ -1,0 +1,252 @@
+---
+title: Inference
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Last time
+
+```{r message=F, warning=F, include=F}
+library(tidyverse)
+```
+
+
+.large[
+$$
+\begin{aligned}
+\text{Admit}_i &\sim Bernoulli(\pi_i) \\
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+**Research question:** Is there a relationship between GRE and grad school acceptance, after accounting for GPA and school rank?
+
+$H_0: \beta_2 = 0 \hspace{1cm} H_A: \beta_2 \neq 0$
+]
+
+---
+
+### A new research question
+
+.large[
+$$
+\begin{aligned}
+\text{Admit}_i &\sim Bernoulli(\pi_i) \\
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+**Research question:** Is there a relationship between school rank and grad school acceptance, after accounting for GPA and GRE score?
+
+.question[
+What are my hypotheses for this new research question?
+]
+]
+
+---
+
+### Testing multiple parameters
+
+.large[
+$$
+\begin{aligned}
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+$H_0: \beta_3 = \beta_4 = \beta_4 = 0$
+
+$H_A: \text{ at least one of } \beta_3, \beta_4, \beta_5 \neq 0$
+
+.question[
+How do we test multiple parameters in a *linear* regression model?
+]
+]
+
+---
+
+### Nested models
+
+.large[
+$H_0: \beta_3 = \beta_4 = \beta_4 = 0$
+
+$H_A: \text{ at least one of } \beta_3, \beta_4, \beta_5 \neq 0$
+
+**Full model** ($H_A$):
+
+$$
+\begin{aligned}
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+**Reduced model** ($H_0$):
+]
+
+---
+
+### Comparing nested models
+
+.large[
+**Full model** ($H_A$):
+
+$$
+\begin{aligned}
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i + \\
+& \hspace{0.5cm} \beta_3 \text{Rank2}_i + \beta_4 \text{Rank3}_i + \beta_5 \text{Rank4}_i
+\end{aligned}
+$$
+
+**Reduced model** ($H_0$):
+
+$$
+\begin{aligned}
+\log \left( \dfrac{\pi_i}{1 - \pi_i} \right) &= \beta_0 + \beta_1 \text{GPA}_i + \beta_2 \text{GRE}_i
+\end{aligned}
+$$
+.question[
+How should we compare these two nested models?
+]
+]
+
+---
+
+### Comparing nested models
+
+.large[
+**Deviance:** for a logistic regression model, deviance is $-2 \log L$
+
+**Idea:**
+
+* Maximizing likelihood (how we fit the model) is equivalent to minimizing deviance
+* Smaller deviance implies better fit
+* Is there a big difference in the deviance (model fit) between these models??
+
+**Change in deviance:**
+
+]
+
+---
+
+### Comparing deviance
+
+```{r, include=F}
+grad_app <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+```
+
+
+.large[
+```{r}
+m_full <- glm(admit ~ gpa + gre + as.factor(rank),
+              family = binomial, data = grad_app)
+
+m_reduced <- glm(admit ~ gpa + gre,
+                 family = binomial, data = grad_app)
+
+m_reduced$deviance - m_full$deviance
+```
+
+.question[
+How do I know whether this is a big change in deviance? That is: **is a change in deviance of 21.83 unusual under the null hypothesis?**
+]
+]
+
+---
+
+### Parametric bootstrap
+
+---
+
+### Class activity
+
+.large[
+* Work on the class activity (linked on Canvas and course website)
+* Submit rendered HTML on Canvas at the end of class
+]
+
+---
+
+### Activity
+
+```{r param_boot, cache=T, echo=F, fig.width=8, fig.height=5}
+m_reduced <- glm(admit ~ gpa + gre,
+                 family = binomial, data = grad_app)
+
+nsim <- 5000
+parametric_boot_stats <- rep(NA, nsim)
+
+for(i in 1:nsim){
+  # create a new parametric bootstrap sample
+  # (code from question 1)
+  admit_star <- rbinom(n = length(m_reduced$y), 
+                     size = 1,
+                     p = m_reduced$fitted.values)
+
+  sim_data <- grad_app |>
+    mutate(admit_star = admit_star)
+  
+  # re-fit the full and reduced models on the 
+  # simulated data
+  # (code from questions 2 - 3)
+  m_full_sim <- glm(admit_star ~ gpa + gre + as.factor(rank),
+                  family = binomial, data = sim_data)
+  
+  m_reduced_sim <- glm(admit_star ~ gpa + gre,
+                  family = binomial, data = sim_data)
+  
+  # recompute the change in deviance, and save
+  parametric_boot_stats[i] <- m_reduced_sim$deviance -
+    m_full_sim$deviance
+}
+```
+
+.large[
+.question[
+What does this distribution look like?
+]
+]
+
+---
+
+### Activity
+
+```{r echo=F, fig.width=8, fig.height=5}
+hist(parametric_boot_stats)
+```
+
+.large[
+.question[
+How unusual is the observed test statistic of 21.83, compared to this null distribution?
+]
+]
+
+---
+
+### p-value
+
+```{r echo=F, fig.width=8, fig.height=5}
+hist(parametric_boot_stats)
+```
+
+.large[
+```{r}
+mean(parametric_boot_stats > 21.83)
+```
+]
+
+
+
+
+
