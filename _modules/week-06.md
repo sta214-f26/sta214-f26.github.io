@@ -8,6 +8,7 @@ September 28
 
 September 30
 : Hypothesis tests and parametric bootstrap
+  : [slides](https://sta214-f26.github.io/slides/lecture_15.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_15.html)
 
 October 2
 : Hypothesis testing
