@@ -15,3 +15,4 @@ September 30
 
 October 2
 : Hypothesis testing
+  : [slides](https://sta214-f26.github.io/slides/lecture_16.pdf), [activity 1](https://sta214-f26.github.io/class_activities/ca_16_handout.pdf), [activity 2](https://sta214-f26.github.io/class_activities/ca_16_handout_2.pdf)
