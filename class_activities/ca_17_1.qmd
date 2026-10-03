@@ -1,0 +1,51 @@
+---
+title: "Activity"
+format: 
+  pdf:
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+editor: source
+---
+
+\vspace{-2.5cm}
+
+# Core temperature and post-surgery infections
+
+When patients undergo surgery, the anesthesia received can lower their core temperature. While surgical environments are controlled and aim to regulate patient core temperature, some degree of cooling can still occur. *Hypothermia* during surgery is said to occur if the core temperature is below $36^\circ\text{C}$, and we might suspect that greater differences from $36^\circ\text{C}$ would be associated with worse outcomes. Furthermore, it is possible that there is a relationship between core temperature and patient outcomes even within the normal range of body temperatures ($36 - 37.5^\circ\text{C}$).
+
+Walters *et al.* (2020) conducted a study to investigate the relationship between core temperature and the risk of serious infection in colorectal surgery patients. Their study included 7908 adult patients who received colorectal surgery between January 2005 and December 2014, and who had general anesthesia for a surgery lasting at least one hour that included at least 30 minutes of esophageal core temperature monitoring (see Walters *et al.* for the full inclusion/exclusion criteria). The study authors then recorded whether each patient developed a serious infection within 30 days after surgery.
+
+**Research question:** What is the relationship between core temperature during surgery, and the risk of developing a serious infection after surgery?
+
+# Your task
+
+You have been approached by the researchers who conducted this study. They want you to help them plan an analysis, using a regression model to answer their question of interest.
+
+Last time we worked with this data, we decided to include the following explanatory variables in the model, with Serious Infection as the response:
+
+* TWATemp (measure of core temperature during surgery)
+* Surgery information -- duration (SurgDuration) and open vs. laproscopic (Open)
+* Patient characteristics (Age, BMI, FEMALE)
+* Information on pre-existing health conditions and comorbidities (CharlsonScore, CHF, VALVE, ..., ANDEMDEF)
+* Drug information (DRUG, SteroidHx, ImmunosuppressantHx)
+
+## Questions
+
+1. What assumptions is your model making?
+
+\vspace{3cm}
+
+2. What model diagnostics will you perform to assess whether the model is a reasonable fit to the data? Describe any plots you would make and statistics you would calculate, and how you would use the results -- what are you looking for? What would the diagnostics look like if the model is a good fit? What would they look like if the model is *not* a good fit?
+
+\newpage
+
+3. If model diagnostics suggest the model is *not* a good fit, what modifications would you explore to improve model fit?
+
+\vspace{10cm}
+
+
+4. Once you have a final model with which you are satisfied (model diagnostics look sufficiently reasonable), how will you use that final model to address the research question of interest?
+
+
+

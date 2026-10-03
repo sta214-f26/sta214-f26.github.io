@@ -1,0 +1,96 @@
+---
+title: "Model 1"
+format: 
+  pdf:
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+editor: source
+---
+
+\vspace{-2.5cm}
+
+```{r setup, include=F}
+library(tidyverse)
+library(patchwork)
+library(glmhelpR)
+
+ct <- read_csv("https://cmustatistics.github.io/data-repository/data/core-temperature.csv")
+```
+
+### Model 1
+
+```{r, message=F}
+m1 <- glm(SeriousInfection ~ TWATemp + SurgDuration + Open +
+            Age + FEMALE + BMI + CharlsonScore + CHF + VALVE +
+            RENLFAIL + LIVER + METS + TUMOR + COAG + 
+            OBESE + LYTES + BLDLOSS + ANEMDEF + DRUG +
+            SteroidHx + ImmunosuppressantHx,
+          data = ct, family = binomial)
+```
+
+### Diagnostics
+
+Quantile residual plots:
+
+```{r, echo=F, message=F, fig.width=9, fig.height=6}
+p1 <- ct |>
+  mutate(res = statmod::qresid(m1)) |>
+  ggplot(aes(x = TWATemp, y = res)) +
+  geom_point(size = 0.5) +
+  geom_smooth() +
+  theme_bw()
+
+p2 <- ct |>
+  mutate(res = statmod::qresid(m1)) |>
+  ggplot(aes(x = SurgDuration, y = res)) +
+  geom_point(size = 0.5) +
+  geom_smooth() +
+  theme_bw()
+
+p3 <- ct |>
+  mutate(res = statmod::qresid(m1)) |>
+  ggplot(aes(x = CharlsonScore, y = res)) +
+  geom_point(size = 0.5) +
+  geom_smooth() +
+  theme_bw()
+
+p4 <- ct |>
+  mutate(res = statmod::qresid(m1)) |>
+  ggplot(aes(x = Age, y = res)) +
+  geom_point(size = 0.5) +
+  geom_smooth() +
+  theme_bw()
+
+p5 <- ct |>
+  mutate(res = statmod::qresid(m1)) |>
+  ggplot(aes(x = BMI, y = res)) +
+  geom_point(size = 0.5) +
+  geom_smooth() +
+  theme_bw()
+
+(p1 + p2 + p3)/(p4 + p5 + plot_spacer())
+```
+
+Cook's distance:
+
+```{r}
+summary(cooks.distance(m1))
+```
+
+Variance inflation factors:
+
+```{r}
+car::vif(m1)
+```
+
+### Model summary
+
+```{r}
+summary(m1)
+```
+
+
+
+
+

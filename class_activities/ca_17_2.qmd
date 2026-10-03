@@ -1,0 +1,46 @@
+---
+title: "Activity"
+format: 
+  pdf:
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+editor: source
+---
+
+\vspace{-2.5cm}
+
+# Core temperature and post-surgery infections
+
+When patients undergo surgery, the anesthesia received can lower their core temperature. While surgical environments are controlled and aim to regulate patient core temperature, some degree of cooling can still occur. *Hypothermia* during surgery is said to occur if the core temperature is below $36^\circ\text{C}$, and we might suspect that greater differences from $36^\circ\text{C}$ would be associated with worse outcomes. Furthermore, it is possible that there is a relationship between core temperature and patient outcomes even within the normal range of body temperatures ($36 - 37.5^\circ\text{C}$).
+
+Walters *et al.* (2020) conducted a study to investigate the relationship between core temperature and the risk of serious infection in colorectal surgery patients. Their study included 7908 adult patients who received colorectal surgery between January 2005 and December 2014, and who had general anesthesia for a surgery lasting at least one hour that included at least 30 minutes of esophageal core temperature monitoring (see Walters *et al.* for the full inclusion/exclusion criteria). The study authors then recorded whether each patient developed a serious infection within 30 days after surgery.
+
+**Research question:** What is the relationship between core temperature during surgery, and the risk of developing a serious infection after surgery?
+
+# Your task
+
+You have been approached by the researchers who conducted this study. They want you to help them plan an analysis, using a regression model to answer their question of interest.
+
+# Models
+
+You have been provided with variable summaries, empirical logit plots, and the output of three different models. You may or may not need to use all three models to address the research question!
+
+## Questions
+
+1. Look at the empirical logit plots -- what do you notice?
+
+\vspace{4cm}
+
+2. Intuitively, does it make sense for core temperature to have a monotonic relationship with the risk of serious infection?
+
+\vspace{4cm}
+
+3. If we are interested in the effect of core temperature, should we be concerned about high VIFs in other explanatory variables?
+
+\vspace{4cm}
+
+4. Use the model output to address the research question.
+
+
+
