@@ -11,7 +11,7 @@ September 30
   : [slides](https://sta214-f26.github.io/slides/lecture_15.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_15.html)
   
 : Exam 1 review questions
-  : [questions](https://sta214-f26.github.io/class_activities/exam_1_review.html)
+  : [questions](https://sta214-f26.github.io/class_activities/exam_1_review.html), [solutions](https://sta214-f26.github.io/class_activities/exam_1_review_solutions.html)
 
 October 2
 : Hypothesis testing
