@@ -224,7 +224,7 @@ And solving, we get that
 
 $$\theta = \frac{n}{\sum \limits_{i=1}^n Y_i}$$
 
-is the value of $\theta$ that maximizes our likelihood. So, our maximum likelihood estimator is
+is the value of $\theta$ that maximizes our likelihood. So, our maximum likelihood estimator is 
 
 $$\widehat{\theta} = \frac{n}{\sum \limits_{i=1}^n Y_i}$$
 
