@@ -1,0 +1,89 @@
+---
+title: Statistical Analysis Plans
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+### Project so far
+
+.large[
+
+* Identified a dataset, response variable, and research question
+* Data description and EDA
+
+What's next: using tools from class to address your research question
+
+.question[
+But first: we should plan the analysis we want to do!
+]
+]
+
+---
+
+### Statistical Analysis Plan (SAP)
+
+.large[
+A **statistical analysis plan** (SAP) describes:
+
+* the research questions we are trying to answer
+* the data we will use to answer the research questions
+* how we will use statistical methods (models, diagnostics, hypothesis tests, etc.)
+* how we will present our results
+
+**Why?**
+
+* having a plan ahead of time helps organize our work
+* research questions should inform analysis and methods (not the other way around)
+* helps determine which data we need to collect
+* make sure we're doing something reasonable before we do a ton of work!
+]
+
+---
+
+### Statistical Analysis Plan (SAP)
+
+.large[
+* What is/are the research question(s) or objectives?
+* What are the variables that will be measured in the study? For each variable, what will the
+data look like?
+* What is the study design, and why is the study set up this way?
+* How will data and any patterns/results be summarized? (i.e., how you will do exploratory
+data analysis).
+* What will be examined statistically? Link directly back to the research questions.
+* What alternative strategies should be considered, and when?
+* What are the statistical results that will be presented?
+]
+
+---
+
+### Today
+
+.large[
+
+* What will be examined statistically?
+    * Which models will you fit?
+    * How will you assess the suitability of these models? (diagnostics, etc.)
+    * How will you use the models to address the research question(s)? (hypothesis tests,
+confidence intervals, etc.)
+    * What software will you use? (software language, specific functions)
+* What alternative strategies should be considered, and when? (i.e., what will you do if assumptions are violated? How would you modify the model or statistical analysis?)
+
+.question[
+**Your task today:** Work through these questions (handout), and **discuss your ideas with Dr. Evans**
+]
+
+]
+
+
+
+
+

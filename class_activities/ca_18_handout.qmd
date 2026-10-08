@@ -1,0 +1,38 @@
+---
+title: "Activity: Statistical Analysis Plan"
+format: pdf
+editor: source
+---
+
+\vspace{-2.5cm}
+
+This semester, you will complete a project in which you use logistic regression to investigate a research question of your choosing. You will then write a report that communicates the results of your analysis and draws a conclusion about your research question, and finally present your work to me.
+
+In Part 1, you identified a research question and a dataset to address that question, performed exploratory data analysis, and wrote up your results.
+
+In subsequent parts of the project, you will use tools from the course to investigate your research question on your chosen data. The purpose of this activity is to help you plan how you will carry out that analysis.
+
+
+# Questions
+
+1. What variables will you use to investigate your research question?
+
+\vspace{4cm}
+
+2. Which statistical model will you fit to address the research questions? Provide the variables (explanatory and response) that will be included in the model.
+
+\newpage
+
+3. How will you assess the suitability of this model? (Describe any diagnostics, metrics, etc. that you will use to check whether your chosen model is a good fit to the data).
+
+\vspace{6cm}
+
+4. How will you use the model to address the research question(s)? (hypothesis tests,
+confidence intervals, etc.)
+
+\vspace{6cm}
+
+5. What alternative strategies should be considered, and when? (i.e., what will you do if assumptions are violated? How would you modify the model or statistical analysis?)
+
+
+
