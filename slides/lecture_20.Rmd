@@ -1,0 +1,193 @@
+---
+title: "Poisson regression"
+author: "Ciaran Evans"
+output: beamer_presentation
+---
+
+## Warmup
+
+Work on the warmup activity (handout)
+
+\vspace{4cm}
+
+## Warmup
+
+```{r, include=F}
+library(foreign)
+library(tidyverse)
+articles <- read.dta("http://www.stata-press.com/data/lf2/couart2.dta")
+
+m_art <- glm(art ~ phd + ment + kid5, 
+             family = poisson, data = articles)
+#summary(m_art)
+```
+
+```
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.276493   0.087294   3.167  0.00154 ** 
+phd          0.008071   0.026358   0.306  0.75944    
+ment         0.026537   0.002001  13.264  < 2e-16 ***
+kid5        -0.099696   0.035248  -2.828  0.00468 ** 
+```
+
+How would we interpret the coefficient on the number of articles published by the student's mentor?
+
+\vspace{3cm}
+
+## Warmup
+
+```
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.276493   0.087294   3.167  0.00154 ** 
+phd          0.008071   0.026358   0.306  0.75944    
+ment         0.026537   0.002001  13.264  < 2e-16 ***
+kid5        -0.099696   0.035248  -2.828  0.00468 ** 
+```
+
+What is the predicted number of articles for a student at a PhD program with a prestige score of 4, whose mentor published 30 articles in the last 3 years, and who has no children?
+
+\vspace{3cm}
+
+## Model assumptions and diagnostics
+
+* Empirical log mean plots
+* Quantile residual plots
+* QQ plots of the quantile residuals
+* Rootograms
+
+\vspace{3cm}
+
+## Activity
+
+Work on the class activity (course website).
+
+\vspace{4cm}
+
+## Class activity: Poisson regression assumptions
+
+```{r, echo=F, message=FALSE, warning=F, fig.align='center', fig.width=3.5, fig.height=3}
+library(tidyverse)
+library(statmod)
+library(topmodels)
+library(gridExtra)
+
+set.seed(1)
+r <- 0.5
+n <- 1000
+x <- rnorm(n, sd = 0.5)
+y1 <- rpois(n, lambda = exp(x))
+y2 <- rpois(n, lambda = exp(x^2))
+y3 <- rnbinom(n, size=r, mu=exp(x))
+y4 <- rnbinom(n, size=r, mu=exp(x^2))
+
+m1 <- glm(y1 ~ x, family = poisson)
+m2 <- glm(y2 ~ x, family = poisson)
+m3 <- glm(y3 ~ x, family = poisson)
+m4 <- glm(y4 ~ x, family = poisson)
+
+p1 <- data.frame(x = x, resids = qresid(m1)) |>
+  ggplot(aes(x = x, y = resids)) +
+  geom_point(size=0.3) +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "X", y = "Quantile residuals", 
+       title = "Poisson data, \n shape assumption satisfied") +
+  scale_y_continuous(limits=c(-3, 6)) +
+  theme(text = element_text(size = 6))
+p2 <- data.frame(x = x, resids = qresid(m2)) |>
+  ggplot(aes(x = x, y = resids)) +
+  geom_point(size=0.3) +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "X", y = "Quantile residuals", 
+       title = "Poisson data, \n shape assumption violated") +
+  scale_y_continuous(limits=c(-3, 6)) +
+  theme(text = element_text(size = 6))
+p3 <- data.frame(x = x, resids = qresid(m3)) |>
+  ggplot(aes(x = x, y = resids)) +
+  geom_point(size=0.3) +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "X", y = "Quantile residuals", 
+       title = "Non-Poisson data, \n shape assumption satisfied") +
+  scale_y_continuous(limits=c(-3, 6)) +
+  theme(text = element_text(size = 6))
+p4 <- data.frame(x = x, resids = qresid(m4)) |>
+  ggplot(aes(x = x, y = resids)) +
+  geom_point(size=0.3) +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "X", y = "Quantile residuals", 
+       title = "Non-Poisson data, \n shape assumption violated") +
+  scale_y_continuous(limits=c(-3, 6)) +
+  theme(text = element_text(size = 6))
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+
+## Using quantile residual plots
+
+All assumptions are satisfied:
+
+* Residuals are randomly scattered around 0, with no clear pattern
+* Residuals have constant variance
+* Residuals are mostly between -2 and 2
+
+If you see a pattern in the residuals:
+
+* Shape assumption may not be satisfied
+
+If residuals have non-constant variance, and/or variance is too large:
+
+* Distribution assumption may not be satisfied
+
+
+## Rootograms
+
+```{r, echo=F, fig.width=4, fig.height=3, fig.align="center"}
+rootogram(m1)
+```
+
+## Examining rootograms
+
+```{r, echo=F, fig.width=4, fig.height=3}
+rootogram(m3)
+```
+
+## QQ plots
+
+When the model assumptions are satisfied:
+
+```{r, echo=F, fig.width=4, fig.height=3}
+data.frame(resids = qresid(m1)) |>
+  ggplot(aes(sample = resids)) +
+  geom_qq() +
+  geom_abline(slope = 1, intercept = 0, 
+              color = "orange") +
+  labs(x = "Theoretical normal quantiles",
+       y = "Observed residual quantiles") +
+  theme_bw()
+```
+
+## QQ plots
+
+When the model assumptions are not satisfied:
+
+```{r, echo=F, fig.width=4, fig.height=3, warning=F}
+data.frame(resids = qresid(m2)) |>
+  ggplot(aes(sample = resids)) +
+  geom_qq() +
+  geom_abline(slope = 1, intercept = 0, 
+              color = "orange") +
+  labs(x = "Theoretical normal quantiles",
+       y = "Observed residual quantiles") +
+  theme_bw()
+```
+
+
+
+
+
+
+

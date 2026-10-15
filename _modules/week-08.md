@@ -14,5 +14,6 @@ October 14
   
 October 16
 : Poisson regression
+  : [slides](https://sta214-f26.github.io/slides/lecture_20.pdf), [warmup](https://sta214-f26.github.io/class_activities/ca_20_warmup.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_20.html)
   
 : **Project Part 2 released**{: .label .label-yellow }
