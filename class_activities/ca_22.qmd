@@ -1,0 +1,82 @@
+---
+title: "Class activity: Confidence intervals"
+format: html
+callout-icon: false
+---
+
+**Instructions:** 
+
+* Work individually or with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_22_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+## Biochemistry PhD students
+
+We have information on 915 biochemistry PhD students, with variables including:
+
+* `art`: articles published by the student in last three years of Ph.D.
+* `kid5`: number of children under age six
+* `phd`: prestige of Ph.D. program (a numeric score from 0 to 5)
+* `ment`: articles published by their mentor in last three years
+
+We are interested in modeling the number of articles published by the student in the last three years of their PhD, and so we fit a Poisson regression model:
+
+```{r}
+library(tidyverse)
+
+articles <- read_csv("https://sta214-f26.github.io/class_activities/articles_small.csv")
+
+m_art <- glm(art ~ phd + ment + kid5, 
+             family = poisson, data = articles)
+
+summary(m_art)$coefficients
+```
+::: {.callout-tip}
+## Question 1
+
+Using the R output, create a 95% confidence interval ($z^* = 1.96$) for the change in the expected number of articles published associated with an increase of one in the number of children under age 6, holding PhD prestige and mentor publications fixed.
+:::
+
+## Standard errors
+
+The standard error you used in Question 1 is calculated from the Poisson regression model, which assumes that the response distribution is Poisson. However, we have previously found (with model diagnostics) that the model is not a good fit to the data, and the issue is probably that the response distribution has more variability than accounted for by a Poisson model.
+
+This means that our standard error from the Poisson output may be incorrect! To get a better estimate of the standard error, we can use bootstrap resampling. Since bootstrap resampling approximates the process of sampling from the population, the estimated standard error should be close to the truth even if the model is incorrect.
+
+## Bootstrap resampling
+
+::: {.callout-tip}
+## Question 2
+
+Fill in the code below to take 1000 bootstrap samples.
+:::
+
+```{r, eval=F}
+# number of bootstrap samples
+n_boot <- 1000 
+# vector to store the results
+boot_ests <- rep(NA, n_boot) 
+
+for(i in 1:n_boot){
+  # take the bootstrap sample
+  articles_boot <- articles |>
+    slice_sample(n = nrow(articles), replace = T)
+  
+  # fit model on the boostrap sample
+  # (fill in code)
+  ...
+  
+  # store the relevant coefficients from the fitted model
+  # (fill in code)
+  boot_ests[i] <- ...
+}
+```
+
+::: {.callout-tip}
+## Question 3
+
+Compute the standard deviation of your bootstrap estimates (`boot_ests`) and use this standard deviation to re-create the confidence interval from question 1. How do the two intervals compare?
+:::
+
+
+
