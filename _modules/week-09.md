@@ -8,6 +8,7 @@ October 19
 
 October 21
 : quasi-Poisson models
+  : [slides](https://sta214-f26.github.io/slides/lecture_22.pdf), [activity 1](https://sta214-f26.github.io/class_activities/ca_22.html), [activity 2](https://sta214-f26.github.io/class_activities/ca_22_handout.pdf)
   
 October 23
 : quasi-Poisson and negative binomial models
