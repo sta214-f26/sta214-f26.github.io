@@ -21,7 +21,7 @@ We have information on 915 biochemistry PhD students, with variables including:
 
 We are interested in modeling the number of articles published by the student in the last three years of their PhD, and so we fit a Poisson regression model:
 
-```{r}
+```{r message=F, warning=F}
 library(tidyverse)
 
 articles <- read_csv("https://sta214-f26.github.io/class_activities/articles_small.csv")
