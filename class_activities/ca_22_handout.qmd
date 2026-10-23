@@ -73,6 +73,6 @@ m2 <- glm(cigsPerDay ~ male + age + education + diabetes + BMI,
 
 \vspace{3cm}
 
-2. Is there a difference in the average number of cigarettes smoked between smokers with some college education and smokers with no college education, after accounting for sex, age, diabetes, and BMI?
+2. Is there a difference in the average number of cigarettes smoked between smokers with some college education and smokers with no college education, after accounting for sex, age, diabetes, and BMI? Compute a confidence interval or test statistic, and explain how you would use your interval or test statistic to address the question.
 
 
