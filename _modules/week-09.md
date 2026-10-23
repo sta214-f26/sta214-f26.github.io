@@ -14,4 +14,5 @@ October 23
 : quasi-Poisson models
   : [slides](https://sta214-f26.github.io/slides/lecture_23.pdf), [warmup](https://sta214-f26.github.io/class_activities/ca_22_handout.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_23.html)
   
-: **Homework 6 released**{: .label .yellow }
+: **Homework 6 released**{: .label .label-yellow }
+  : [HW 6](https://sta214-f26.github.io/homework/hw_06.html)

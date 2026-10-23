@@ -9,22 +9,22 @@ editor_options:
   chunk_output_type: console
 ---
 
-**Due:** Monday, November 3, 11:59pm on Canvas
+**Due:** Friday, October 30, 11:59pm on Canvas
 
 **Instructions:** 
 
 Begin by downloading the HW 6 template from the course website:
 
-[https://sta214-f25.github.io/homework/hw_06_template.qmd](https://sta214-f25.github.io/homework/hw_06_template.qmd)
+[https://sta214-f26.github.io/homework/hw_06_template.qmd](https://sta214-f26.github.io/homework/hw_06_template.qmd)
 
 Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks.
 
-When you have completed the assignment, render your homework to HTML and submit on Canvas. 
+When you have completed the assignment, render your homework to HTML and submit on Canvas. *You must submit the rendered HTML on Canvas to receive full credit!*
 
-**Guidelines:**
+**Collaborators and AI statement:** At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.
 
-* *You must submit the rendered HTML on Canvas to receive full credit!*
-* The course codebook has examples of writing math in Quarto and R Markdown documents. If your rendered math does not display correctly, or is hard to read, you will not receive full credit
+**Code guidelines:**
+
 * If a question requires code, and code is not provided, you will not receive full credit
 * You will be graded on the quality of your code. In addition to being correct, your code should also be easy to read
 
@@ -65,7 +65,7 @@ data.frame(x = x, resids = qresid(m1)) |>
   theme_bw() +
   labs(x = "X", y = "Quantile residuals") 
 
-rootogram(m1, style="standing")
+rootogram(m1)
 ```
 
 
@@ -93,7 +93,7 @@ y <- rbinom(n, size=8, prob=0.5)
 
 m1 <- glm(y ~ x, family = poisson)
 
-rootogram(m1, style="standing")
+rootogram(m1)
 ```
 
 ```{r, echo=F}
@@ -102,7 +102,7 @@ x <- rnorm(n, sd = 0.5)
 y <- rqpois(1000, mean = exp(x), dispersion = 3)
 m1 <- glm(y ~ x, family = poisson)
 
-rootogram(m1, style="standing")
+rootogram(m1)
 ```
 
 :::{.question}
@@ -113,57 +113,104 @@ Which rootogram shows evidence of overdispersion, and which shows evidence of un
 :::
 
 
-# Offsets
+# Overdispersion effects
 
-Below are three descriptions of scenarios in which we may wish to use Poisson regression (or a variant) to model a count variable:
+The Poisson regression model assumes that $Y_i$ follows a Poisson distribution, which requires that the mean and variance of $Y_i$ are the same. However, it is common to encounter data in which the variance of $Y_i$ is much greater than the mean of $Y_i$, a situation called *overdispersion*. In this portion of the assignment, we will use simulations to explore the effect of overdispersion on inference about our model.
 
-1. Our response of interest is the number of patients with a particular disease. Data is collected from all cities in the US; for our purposes, a city has a population of at least 50000 people. Each row in the data corresponds to a city, and we are interested in modeling the number of patients with this disease, using variables such as the location of the city and its average temperature.
-2. Our response of interest is the number of students in a class at Wake Forest. Each observation represents one class at Wake Forest, taught in the Fall 2025 semester. We record the number of students in the class, and we are interested in modeling the number of students using variables such as the level of the course (100, 200, etc.), the department, and whether it fulfills any divisional or 21CS requirements.
-3. Our response of interest is the number of fish caught by visitors to a national park. Visitors can obtain a permit and fish in the park for between 1 and 7 days. Each observation represents the number of fish caught by a different visitor, and we are interested in modeling the number of fish using variables such as the age of the visitor and whether they were accompanied by any young children.
+## Simulating data and computing a confidence interval
+
+To begin, let's generate data from the model
+
+$$X_i \sim N(0, 0.5)$$
+$$\log(\lambda_i) = X_i$$
+$$Y_i \sim Poisson(\lambda_i)$$
+Note that the Poisson regression assumptions are satisfied for this model. The true slope of our model is $\beta_1 = 1$.
 
 :::{.question}
 #### Question 3
 
-In which of these scenarios would we wish to include an offset term in our Poisson regression model? Explain your reasoning. If you believe an offset term is necessary, describe what the offset would be -- it may or may not be one of the explanatory variables mentioned in the scenario descriptions.
+Run the code below to generate data from this model, fit the Poisson regression model in R, and create a 95% confidence interval for $\beta_1$. Does your interval contain $\beta_1$?
+
+```{r, eval=F}
+n <- 1000
+beta0 <- 0
+beta1 <- 1
+x <- rnorm(n, sd = 0.5)
+y1 <- rpois(n, lambda = exp(beta0 + beta1*x))
+
+m1 <- glm(y1 ~ x, family = poisson)
+
+upper <- summary(m1)$coefficients[2,1] + 
+    1.96*summary(m1)$coefficients[2,2]
+lower <- summary(m1)$coefficients[2,1] - 
+    1.96*summary(m1)$coefficients[2,2]
+```
 
 :::
 
+## Repeating
 
-# Estimates and confidence intervals
+Now let's run the simulation 500 times, and estimate the true coverage of our confidence intervals (that is, the fraction of times the interval contains the true $\beta_1$):
 
-On October 22, you worked on a [class activity](https://sta214-f25.github.io/class_activities/ca_23.html) in which you investigated the effects of overdispersion on the coverage of confidence intervals. You saw in that activity that, as the degree of overdispersion increases, the coverage of our confidence intervals decreases.
+```{r, eval=F}
+n <- 1000
+nsim <- 500
+beta0 <- 0
+beta1 <- 1
+contains_beta <- rep(0, nsim)
+for(i in 1:nsim){
+  x <- rnorm(n, sd = 0.5)
+  y1 <- rpois(n, lambda = exp(beta0 + beta1*x))
+  
+  m1 <- glm(y1 ~ x, family = poisson)
+  
+  upper <- summary(m1)$coefficients[2,1] + 
+      1.96*summary(m1)$coefficients[2,2]
+  lower <- summary(m1)$coefficients[2,1] - 
+      1.96*summary(m1)$coefficients[2,2]
+  
+  contains_beta[i] <- upper > beta1 && lower < beta1
+}
 
-Why does this occur? There are several possibilities:
-
-* The center of the confidence interval is in the wrong place, but the width of the interval is ok
-* The center of the confidence interval is in the right place, but the width of the interval is too small
-* The center of the confidence interval is in the wrong place, *and* the width of the interval is too small
-
-We already know that the width of the interval is too small -- this is why expanding the width with the quasi-Poisson model helps. The question is then whether the center of the confidence interval is in the right place or not.
-
-Our confidence interval for $\beta_j$ is centered around $\widehat{\beta}_j$. So our question is whether $\widehat{\beta}_j$ is close, on average, to $\beta_j$. To formalize this question, let's introduce a couple pieces of notation:
-
-* **Expectation:** The *expected value*, or *mean*, of $\widehat{\beta}_j$ is denoted by $\mathbb{E}[\widehat{\beta}_j]$. This is the average value of $\widehat{\beta}_j$ over many, many samples from the population
-* **Bias:** The *bias* of $\widehat{\beta}_j$ is the difference between its expectation and the true $\beta_j$:
-
-$$Bias(\widehat{\beta}_j) = \mathbb{E}[\widehat{\beta}_j] - \beta_j$$
-
-Ideally, we want estimators with **small bias** (i.e., we want to be right on average!).
-
-**Conducting a simulation:** We will explore whether the amount of overdispersion in our data effects the *bias* of our regression coefficient estimates from Poisson regression (we already know overdispersion impacts the variance). 
-
-* Borrowing code from the class activity, simulate data from a model in which the Poisson regression assumptions are correct, and calculate $\widehat{\beta}_1$ for each simulation. Repeat the simulations many times and average your $\widehat{\beta}_1$ estimates to approximate $\mathbb{E}[\widehat{\beta}_1]$ and $Bias(\widehat{\beta}_1)$
-* Now modify your code, so that the distribution assumption is incorrect, and there is overdispersion in the data. Use the `rnbinom` function we used in class, and change the `size` parameter to vary the amount of overdispersion. For each `size` parameter you choose, approximate $Bias(\widehat{\beta}_1)$ for the Poisson regression model
-* Finally, make and interpret a plot of $Bias(\widehat{\beta}_1)$ against the amount of overdispersion in the data
-
+mean(contains_beta)
+```
 
 :::{.question}
 #### Question 4
 
-Conduct and discuss the simulation described above. What is causing the decrease in coverage of confidence intervals for the Poisson model when there is overdispersion in the data?
+Run the code. What fraction of times did the confidence intervals contain the true $\beta_1$?
+:::
+
+## Changing the distribution
+
+Now what happens if we change the distribution of $Y$? The negative binomial distribution is another count distribution, which is different from the Poisson. In particular, the variance of the negative binomial is greater than the mean! Let's generate negative binomial data (violating the Poisson distribution assumption and creating overdispersion), and see how the coverage of our confidence intervals change.
+
+:::{.question}
+#### Question 5
+
+Modify your code from question 4, but this time instead of generating $Y$ from a Poisson distribution, generate $Y$ from a negative binomial, using:
+
+```{r, eval=F}
+y1 <- rnbinom(n, size=0.5, mu=exp(beta0 + beta1*x))
+```
+
+How does the coverage change compared to question 4?
 
 :::
 
+:::{.question}
+#### Question 6
+
+The `size` argument in the `rbinom` function determines how similar the mean and variance of the negative binomial distribution are. Values of `size` close to 0 make the variance much larger than the mean; as `size` increases, the mean and variance become more similar. Re-run the code from question 5, but change the value of `size` in the code. How does coverage change as we decrease overdispersion?
+:::
+
+## Modifying our model
+
+:::{.question}
+#### Question 7
+
+Now modify the code from question 5, so that instead of fitting a Poisson model you fit a *quasi*-Poisson model (`family = quasipoisson`). Use the quasi-Poisson model and the appropriate $t$-distribution to calculate the confidence intervals. What is the coverage when using the quasi-Poisson?
+:::
 
 # Understanding the estimated dispersion parameter
 
@@ -196,7 +243,7 @@ sum(residuals(m1, "pearson")^2)
 ```
 
 :::{.question}
-#### Question 5
+#### Question 8
 
 Repeat the simulation `nsim = 1000` times, and store the resulting sums of squared residuals. Compare the distribution of the calculated numerators to a $\chi^2_{98}$ distribution:
 
