@@ -1,0 +1,45 @@
+---
+title: "Class activity: Negative Binomial models"
+format: html
+---
+
+**Instructions:** 
+
+* Work individually or with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_24_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+# Negative binomial modeling
+
+We are interested in analyzing the number of articles published by biochemistry PhD students. The data contains the following variables:
+
+* `art`: articles published in last three years of Ph.D.
+* `kid5`: number of children under age six
+* `phd`: prestige of Ph.D. program
+* `ment`: articles published by their mentor in last three years
+
+The data can be loaded in R with the following:
+
+```{r message=F, warning=F}
+library(tidyverse)
+
+articles <- read_csv("https://sta214-f26.github.io/class_activities/articles_small.csv")
+```
+
+## Questions
+
+1. Fit a negative binomial regression model to predict the number of articles published, using the other variables in the data as the explanatory variables.
+
+2. Using your fitted model, is there a relationship between the number of mentor publications and the number of student articles published, after accounting for the other variables? For practice, do this two ways: with a $z$-test, and with a likelihood ratio test.
+
+*Note:* One way to get an approximate p-value would be to use parametric bootstrapping. Another alternative is to use an approximation to the null distribution: under $H_0$, the likelihood ratio test statistic is approximately $\chi^2_q$ where $q$ is the difference in the number of parameters between the full and reduced models.
+
+In R, we can compute tail probabilities for a $\chi^2$ distribution with `pchisq`. For example, if $q = 2$ and the LRT test statistic is 11, then we would get the p-value with
+
+```{r, eval=F}
+pchisq(11, df = 2, lower.tail = FALSE)
+```
+
+
+
+
