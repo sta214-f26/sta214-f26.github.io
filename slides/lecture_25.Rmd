@@ -1,0 +1,463 @@
+---
+title: Negative binomial models, intro to ZIP models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=F}
+library(tidyverse)
+heart_data <- read.csv("~/Documents/Teaching/applied_glms/sta214-f25.github.io/class_activities/framingham.csv")
+
+heart_data <- heart_data %>%
+  drop_na(male, age, education, diabetes, cigsPerDay, BMI) %>%
+  mutate(education = as.factor(education))
+
+smokers <- heart_data %>%
+  filter(currentSmoker == 1)
+```
+
+
+
+### Negative binomial regression
+
+.large[
+$$Y_i \sim NB(\theta, \ p_i)$$
+
+$$\log(\mu_i) = \beta_0 + \beta_1 X_i$$
+
+* $\mu_i = \dfrac{p_i \theta}{1 - p_i}$
+* Note that $\theta$ is the same for all $i$
+* Note that just like in Poisson regression, we model the average count
+* Interpretation of $\beta$s is the same as in Poisson regression
+]
+
+---
+
+### Comparing Poisson, quasi-Poisson, negative binomial
+
+.large[
+**Poisson:**
+
+* Mean = $\lambda_i$
+* Variance = $\lambda_i$
+
+**quasi-Poisson:**
+
+* Mean = $\lambda_i$
+* Variance = $\phi \lambda_i$
+
+**negative binomial:**
+
+* Mean = $\mu_i$
+* Variance = $\mu_i + \dfrac{\mu_i^2}{\theta}$
+]
+
+```{r, include=F}
+library(foreign)
+library(MASS)
+library(tidyverse)
+
+heart_data <- read.csv("~/Documents/Teaching/applied_glms/sta214-f25.github.io/class_activities/framingham.csv")
+
+heart_data <- heart_data |>
+  drop_na(male, age, education, diabetes, cigsPerDay, BMI) |>
+  mutate(education = as.factor(education))
+
+smokers <- heart_data |>
+  filter(currentSmoker == 1)
+
+m3 <- glm.nb(cigsPerDay ~ male + age + education + 
+            diabetes + BMI, data = smokers)
+```
+
+---
+
+### Likelihood ratio test
+
+.large[
+```{r}
+m3 <- glm.nb(cigsPerDay ~ male + age + education + 
+               diabetes + BMI, data = smokers)
+m4 <- glm.nb(cigsPerDay ~ male + age +
+               diabetes + BMI, data = smokers)
+m3$twologlik - m4$twologlik
+pchisq(1.423, df=3, lower.tail=F)
+```
+]
+
+---
+
+### Class activity
+
+.large[
+Work on the class activity. Submit the rendered HTML on Canvas at the end of class.
+]
+
+---
+
+### Class activity
+
+.large[
+```{r, eval=F}
+m_art <- glm.nb(art ~ phd + ment + kid5, data = articles)
+```
+
+```
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.233528   0.117585   1.986   0.0470 *  
+phd          0.008203   0.036069   0.227   0.8201    
+ment         0.030374   0.003240   9.373   <2e-16 ***
+kid5        -0.093256   0.046475  -2.007   0.0448 *  
+```
+]
+
+---
+
+### Class activity
+
+.large[
+```{r, include=F}
+library(MASS)
+library(foreign)
+
+articles <- read.dta("http://www.stata-press.com/data/lf2/couart2.dta")
+```
+
+```{r}
+m_art <- glm.nb(art ~ phd + ment + kid5, data = articles)
+m_art_reduced <- glm.nb(art ~ phd + kid5,
+                        data = articles)
+m_art$twologlik - m_art_reduced$twologlik
+pchisq(77, df=1, lower.tail=F)
+```
+
+
+]
+
+---
+
+### quasi-Poisson vs. negative binomial
+
+.large[
+
+.pull-left[
+**quasi-Poisson:**
+
+* linear relationship between mean and variance
+* easy to interpret $\widehat{\phi}$
+* same as Poisson regression when $\phi = 1$
+* simple adjustment to estimated standard errors
+* estimated coefficients same as in Poisson regression
+]
+
+.pull-right[
+**negative binomial:**
+
+* quadratic relationship between mean and variance
+* we get to use a likelihood, rather than a quasi-likelihood
+* Same as Poisson regression when $\theta$ is very large and $p$ is very small
+]
+]
+
+---
+
+### Data: College drinking
+
+.large[
+Survey data from 77 college students on a dry campus (i.e., alcohol is prohibited) in the US. Survey asks students "How many alcoholic drinks did you consume last weekend?"
+
+* `drinks`: the number of drinks the student reports consuming
+* `sex`: an indicator for whether the student identifies as male
+* `OffCampus`: an indicator for whether the student lives off campus
+* `FirstYear`: an indicator for whether the student is a first-year student
+
+.question[
+Our goal: model the number of drinks students report consuming.
+]
+]
+
+---
+
+### EDA: drinks
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+library(tidyverse)
+
+wdrinks <- read.csv("~/Documents/Teaching/applied_glms/sta214-f25.github.io/class_activities/weekendDrinks.csv")
+
+FirstYear <- ifelse( wdrinks$dorm %in% c("mohn","kittlesby", "kildahl"), "TRUE", "FALSE")
+OffCampus <- ifelse( wdrinks$dorm == "off campus", "TRUE", "FALSE")
+
+wdrinks <- cbind(wdrinks, FirstYear, OffCampus)
+
+wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+.large[
+.question[
+What do you notice about this distribution?
+]
+]
+
+---
+
+### EDA: drinks
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+.large[
+* The distribution is right skewed and unimodal
+* There is an outlier near 20
+* *There are more zeros than we would expect from a Poisson distribution!*
+]
+
+---
+
+### Comparisons with Poisson distributions
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=10, fig.height=7}
+library(gridExtra)
+
+p1 <- wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Observed data", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+p2 <- data.frame(x = rpois(100, 1)) %>%
+  ggplot(aes(x = x)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Poisson(1)", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+p3 <- data.frame(x = rpois(100, 2)) %>%
+  ggplot(aes(x = x)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Poisson(2)", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+p4 <- data.frame(x = rpois(100, 5)) %>%
+  ggplot(aes(x = x)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Poisson(5)", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+---
+
+### Excess zeros
+
+.pull-left[
+.large[
+.question[
+*Why might there be excess 0s in the data, and why is that a problem for modeling the number of drinks consumed?*
+]
+]
+]
+
+.pull-right[
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=6, fig.height=4}
+wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+]
+
+---
+
+### Excess zeros
+
+.large[
+The problem:
+
+* There are two groups of people contributing 0s to the data: those who never drink, and those who sometimes drink but didn't drink last weekend
+* By itself, a Poisson distribution doesn't do a good job modeling data that is a mixture of these two groups
+
+.question[
+Why don't I just include whether or not the student drinks as a variable in the model?
+]
+]
+
+---
+
+### Modeling
+
+.large[
+Let
+
+* $Z_i$ denote whether student $i$ is a non-drinker (1 = never drinks, 0 = sometimes drinks)
+* $\alpha_i = P(Z_i = 1)$
+
+We believe that $\alpha_i$ depends on whether or not student $i$ is a first year.
+
+.question[
+What model can I use for the relationship between being a first year student and being a non-drinker?
+]
+]
+
+---
+
+### Modeling non-drinkers
+
+.large[
+$Z_i$ denote whether student $i$ is a non-drinker (1 = never drinks, 0 = sometimes drinks)
+
+$$Z_i \sim Bernoulli(\alpha_i)$$
+$$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$$
+]
+
+---
+
+### Modeling drinks
+
+.large[
+$Y_i =$ number of drinks consumed by student $i$
+
+.question[
+If $Z_i = 1$ (the student never drinks), what is the probability of consuming 0 drinks?
+]
+]
+
+---
+
+### Modeling drinks
+
+.large[
+* $Y_i =$ number of drinks consumed by student $i$
+* Suppose that whether or not a student identifies as male and whether or not a student lives off campus has some relationship with the number of drinks consumed.
+
+.question[
+ If $Z_i = 0$ (the student sometimes drinks), how could I model $Y_i$?
+]
+]
+
+---
+
+### So far:
+
+.large[
+$Z_i \sim Bernoulli(\alpha_i) \hspace{1cm} \log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$P(Y_i = 0 | Z_i = 1) = 1$
+
+$Y_i | Z_i = 0 \sim Poisson(\lambda_i)$ 
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+Can we fit these models?
+]
+]
+
+---
+
+### Combining models
+
+.large[
+$$P(Y_i = y) = P(Y_i = y | Z_i = 0)P(Z_i = 0) + \\ \hspace{2cm} P(Y_i = y | Z_i = 1)P(Z_i = 1)$$
+
+Case 1: $y = 0$
+
+<br/>
+
+<br/>
+
+Case 2: $y > 0$:
+]
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+This is called a *mixture* model (it is a mixture of two different models). We *can* fit this model on the observed data (we don't need to observe $Z_i$)
+]
+]
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+What do $\alpha_i$ and $\lambda_i$ represent?
+]
+]
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+What do $\alpha_i$ and $\lambda_i$ represent?
+]
+]
+
+.large[
+$\alpha_i =$ probability the student doesn't drink, $\lambda_i =$ average number of drinks if the student *does* drink
+]
+
+
+
+
+
