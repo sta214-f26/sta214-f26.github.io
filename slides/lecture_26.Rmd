@@ -1,0 +1,297 @@
+---
+title: Zero inflated models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Last time: College drinking
+
+.large[
+Survey data from 77 college students on a dry campus (i.e., alcohol is prohibited) in the US. Survey asks students "How many alcoholic drinks did you consume last weekend?"
+
+* `drinks`: the number of drinks the student reports consuming
+* `sex`: an indicator for whether the student identifies as male
+* `OffCampus`: an indicator for whether the student lives off campus
+* `FirstYear`: an indicator for whether the student is a first-year student
+
+.question[
+Our goal: model the number of drinks students report consuming.
+]
+]
+
+---
+
+### EDA: drinks
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+library(tidyverse)
+
+wdrinks <- read.csv("~/Documents/Teaching/applied_glms/sta214-f25.github.io/class_activities/weekendDrinks.csv")
+
+FirstYear <- ifelse( wdrinks$dorm %in% c("mohn","kittlesby", "kildahl"), "TRUE", "FALSE")
+OffCampus <- ifelse( wdrinks$dorm == "off campus", "TRUE", "FALSE")
+
+wdrinks <- cbind(wdrinks, FirstYear, OffCampus)
+
+wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+---
+
+### Excess zeros
+
+.large[
+The problem:
+
+* There are two groups of people contributing 0s to the data: those who never drink, and those who sometimes drink but didn't drink last weekend
+* By itself, a Poisson distribution doesn't do a good job modeling data that is a mixture of these two groups
+]
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+This is called a *mixture* model (it is a mixture of two different models). We *can* fit this model on the observed data (we don't need to observe $Z_i$)
+]
+]
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+What do $\alpha_i$ and $\lambda_i$ represent?
+]
+]
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 OffCampus_i + \beta_2 Male_i$
+
+.question[
+What do $\alpha_i$ and $\lambda_i$ represent?
+]
+]
+
+.large[
+$\alpha_i =$ probability the student doesn't drink, $\lambda_i =$ average number of drinks if the student *does* drink
+]
+
+---
+
+### Class activity
+
+.large[
+Work on the class activity (handout).
+]
+
+---
+
+### Class activity: The fitted model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = -0.60 + 1.14 FirstYear_i$
+
+$\log(\widehat{\lambda}_i) = 0.75 + 0.42 \ OffCampus_i + 1.02 \ Male_i$
+
+.question[
+
+What is the estimated probability that a first year student never drinks?
+
+]
+]
+
+---
+
+### The fitted model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = -0.60 + 1.14 FirstYear_i$
+
+$\log(\widehat{\lambda}_i) = 0.75 + 0.42 \ OffCampus_i + 1.02 \ Male_i$
+
+.question[
+
+What is the estimated average number of drinks for a male student who lives off campus and sometimes drinks?
+
+]
+]
+
+---
+
+### The fitted model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = -0.60 + 1.14 FirstYear_i$
+
+$\log(\widehat{\lambda}_i) = 0.75 + 0.42 \ OffCampus_i + 1.02 \ Male_i$
+
+.question[
+
+What is the estimated probability that a male first year student who lives off campus had at least one drink last weekend?
+
+]
+]
+
+---
+
+### Another example: going fishing
+
+.large[
+Data on 250 groups of visitors to a state park. For each group, we have:
+
+* `count`: the number of fish caught by the group
+* `camper`: whether the group brought a camper van (0 = no, 1 = yes)
+* `child`: the number of children in the group
+* `persons`: the total number of people in the group
+* `LOS`: length of stay (in days)
+
+.question[
+Why might the number of fish have excess zeros? What would be the two latent groups in the data?
+]
+]
+
+---
+
+### Going fishing
+
+.large[
+We propose the following model:
+
+$$P(\text{Fish}_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+$$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 \text{Camper}_i + \gamma_2 \text{Children}_i + \gamma_3 \text{Persons}_i$$
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 \text{Camper}_i + \beta_2 \text{Children}_i + \beta_3 \text{Persons}_i$$
+.question[
+Is there any problem with comparing $\lambda_i$ (the expected number of fish caught for those who *do* go fishing) between groups?
+]
+
+]
+
+---
+
+### Offsets
+
+.large[
+We will account for the length of stay by including an **offset** in the model:
+
+$$
+\begin{aligned}
+\log(\lambda_i) &= \beta_0 + \beta_1 \text{Camper}_i + \beta_2 \text{Children}_i + \beta_3 \text{Persons}_i \\ & \hspace{1cm} + \log(\text{LOS}_i)
+\end{aligned}
+$$
+]
+
+---
+
+### Motivation for offsets
+
+.large[
+We will account for the length of stay by including an **offset** in the model:
+
+$$
+\begin{aligned}
+\log(\lambda_i) &= \beta_0 + \beta_1 \text{Camper}_i + \beta_2 \text{Children}_i + \beta_3 \text{Persons}_i \\ & \hspace{1cm} + \log(\text{LOS}_i)
+\end{aligned}
+$$
+]
+
+---
+
+### Interpretation
+
+.large[
+$$
+\begin{aligned}
+\log(\widehat{\lambda}_i) &= -1.13 + 0.0175 \text{Camper}_i - 0.564 \text{Children}_i \\
+& \hspace{1cm} + 0.451 \text{Persons}_i + \log(\text{LOS}_i)
+\end{aligned}
+$$
+]
+
+---
+
+### Weekend drinking
+
+.large[
+Survey data from 77 college students on a dry campus (i.e., alcohol is prohibited) in the US. Survey asks students "How many alcoholic drinks did you consume last weekend?"
+
+* `drinks`: the number of drinks the student reports consuming
+* `sex`: an indicator for whether the student identifies as male
+* `OffCampus`: an indicator for whether the student lives off campus
+* `FirstYear`: an indicator for whether the student is a first-year student
+
+.question[
+Should we include an offset for this model?
+]
+]
+
+---
+
+### When to use offsets
+
+.large[
+Offsets are useful in count regression (Poisson, negative binomial, etc.) when our counts come from groups of very different sizes (e.g., different lengths of stay). The offset lets us interpret model coefficients in terms of rates instead of raw counts.
+
+.question[
+With your neighbor, brainstorm some other data scenarios
+where our response is a count variable, and an offset would be
+useful. What would our offset be?
+]
+]
+
+---
+
+### Class activity
+
+.large[
+Work on the class activity (handout).
+]
+

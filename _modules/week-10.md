@@ -13,6 +13,7 @@ October 28
   
 October 30
 : ZIP models
+  : [slides](https://sta214-f26.github.io/slides/lecture_26.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_25_handout.pdf)
 
   
 : **Homework 7 released**{: .label .label-yellow }
