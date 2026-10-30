@@ -17,3 +17,4 @@ October 30
 
   
 : **Homework 7 released**{: .label .label-yellow }
+  : [HW 7](https://sta214-f26.github.io/homework/hw_07.html)

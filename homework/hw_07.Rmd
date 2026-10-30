@@ -9,22 +9,22 @@ editor_options:
   chunk_output_type: console
 ---
 
-**Due:** Monday, November 10, 11:59pm on Canvas
+**Due:** Friday, November 6, 11:59pm on Canvas
 
 **Instructions:** 
 
 Begin by downloading the HW 7 template from the course website:
 
-[https://sta214-f25.github.io/homework/hw_07_template.qmd](https://sta214-f25.github.io/homework/hw_07_template.qmd)
+[https://sta214-f26.github.io/homework/hw_07_template.qmd](https://sta214-f26.github.io/homework/hw_07_template.qmd)
 
 Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks.
 
-When you have completed the assignment, render your homework to HTML and submit on Canvas. 
+When you have completed the assignment, render your homework to HTML and submit on Canvas. *You must submit the rendered HTML on Canvas to receive full credit!*
 
-**Guidelines:**
+**Collaborators and AI statement:** At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.
 
-* *You must submit the rendered HTML on Canvas to receive full credit!*
-* The course codebook has examples of writing math in Quarto and R Markdown documents. If your rendered math does not display correctly, or is hard to read, you will not receive full credit
+**Code guidelines:**
+
 * If a question requires code, and code is not provided, you will not receive full credit
 * You will be graded on the quality of your code. In addition to being correct, your code should also be easy to read
 
@@ -54,7 +54,7 @@ The data can be downloaded into R with the following code:
 
 ```{r, message=F, warning=F}
 library(tidyverse)
-fish <- read_csv("https://sta214-f25.github.io/homework/fish2.csv")
+fish <- read_csv("https://sta214-f26.github.io/homework/fish2.csv")
 ```
 
 # Questions
@@ -111,7 +111,7 @@ m_zip <- zeroinfl(count ~ camper + child + persons,
 :::{.question}
 #### Question 4
 
-Fit the ZIP model, then use rootograms to verify that the ZIP model is a better fit to the data. (If you are having trouble installing the `topmodels` package needed to make the rootograms, please see me. In the meantime, the remaining questions do not require a rootogram.)
+Fit the ZIP model, then use a rootogram to verify that the ZIP model is a better fit to the data.
 
 :::
 
@@ -154,36 +154,10 @@ In question 8 you calculated a predicted probability, but this is just a point e
 
 So, let's calculate a confidence interval!
 
-As you have hopefully spotted, calculating the confidence interval will require dealing with a linear combination, which means we need to work with the variance-covariance matrix again. In class, we talked about the variance of a linear combination of two random variables. Here we actually have *four* random variables involved in our prediction: $\widehat{\beta}_0$, $\widehat{\beta}_1$, $\widehat{\beta}_2$, and $\widehat{\beta}_3$. This makes finding the variance of the linear combination a bit more difficult.
-
-The variance we want is 
-
-$$Var(\widehat{\beta}_0 + \widehat{\beta}_1 + 3 \widehat{\beta}_2 + 4 \widehat{\beta}_3)$$
-
-In R, we can estimate this variance by:
-
-```{r}
-combo <- c(1, 1, 3, 4)
-vcov_pois <- vcov(m_zip)[1:4, 1:4]
-
-c(t(combo) %*% vcov_pois %*% combo)
-```
-
-(You can use this code to get the variance of the linear combination directly. You do not need to work with the variance-covariance matrix by hand on this assignment!)
-
 :::{.question}
 #### Question 9
 
-Using the information above, construct a confidence interval for
-
-$$\beta_0 + \beta_1 + 3 \beta_2 + 4 \beta_3$$
-
-:::
-
-:::{.question}
-#### Question 10
-
-By transforming the confidence interval from question 9, create a confidence interval for the probability of catching *at least one fish*, for a group with the following characteristics:
+Use bootstrap resampling to compute a confidence interval for the probability of catching *at least one fish*, for a group with the following characteristics:
 
 * going fishing
 * camper van
@@ -194,23 +168,11 @@ By transforming the confidence interval from question 9, create a confidence int
 :::
 
 :::{.question}
-#### Question 11
+#### Question 10
 
-Based on your confidence interval from question 10, who do you bring on your fishing trip?
+Based on your confidence interval from question 9, who do you bring on your fishing trip?
 
 :::
-
-
-
-
-```{r, include=F}
-l_est <- sum(coef(m_zip)[1:4] * combo)
-ci_lower <- l_est - 1.96*sqrt(c(t(combo) %*% vcov_pois %*% combo))
-ci_upper <- l_est + 1.96*sqrt(c(t(combo) %*% vcov_pois %*% combo))
-
-exp(-exp(l_est)*5)
-exp(-exp(ci_lower)*5)
-```
 
 
 
