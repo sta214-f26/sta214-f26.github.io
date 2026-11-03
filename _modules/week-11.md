@@ -8,6 +8,7 @@ November 2
 
 November 4
 : Intro to mixed models
+  : [slides](https://sta214-f26.github.io/slides/lecture_28.pdf), [activity](https://sta214-f26.github.io/class_activities/ca_28.html)
 
   
 November 6
