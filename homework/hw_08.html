@@ -1755,14 +1755,13 @@ amount of overdispersion in our data effects the <em>bias</em> of our
 regression coefficient estimates from Poisson regression (we already
 know overdispersion impacts the variance).</p>
 <ul>
-<li>Borrowing code from the class activity, simulate data from a model
-in which the Poisson regression assumptions are correct, and calculate
-<span class="math inline">\(\widehat{\beta}_1\)</span> for each
-simulation. Repeat the simulations many times and average your <span class="math inline">\(\widehat{\beta}_1\)</span> estimates to
+<li>Borrowing code from HW 6, simulate data from a model in which the
+Poisson regression assumptions are correct, and calculate <span class="math inline">\(\widehat{\beta}_1\)</span> for each simulation.
+Repeat the simulations many times and average your <span class="math inline">\(\widehat{\beta}_1\)</span> estimates to
 approximate <span class="math inline">\(\mathbb{E}[\widehat{\beta}_1]\)</span> and <span class="math inline">\(Bias(\widehat{\beta}_1)\)</span></li>
 <li>Now modify your code, so that the distribution assumption is
 incorrect, and there is overdispersion in the data. Use the
-<code>rnbinom</code> function we used in class, and change the
+<code>rnbinom</code> function we used in class and HW 6, and change the
 <code>size</code> parameter to vary the amount of overdispersion. For
 each <code>size</code> parameter you choose, approximate <span class="math inline">\(Bias(\widehat{\beta}_1)\)</span> for the Poisson
 regression model</li>

@@ -16,3 +16,4 @@ November 6
   : [slides](https://sta214-f26.github.io/slides/lecture_29.pdf), [activity 1](https://sta214-f26.github.io/class_activities/ca_29_handout.pdf), [activity 2](https://sta214-f26.github.io/class_activities/ca_29_handout_2.pdf)
   
 : **Homework 8 released**{: .label .label-yellow }
+  : [HW 8](https://sta214-f26.github.io/homework/hw_08.html)

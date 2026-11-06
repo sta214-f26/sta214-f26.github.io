@@ -55,8 +55,8 @@ Ideally, we want estimators with **small bias** (i.e., we want to be right on av
 
 **Conducting a simulation:** We will explore whether the amount of overdispersion in our data effects the *bias* of our regression coefficient estimates from Poisson regression (we already know overdispersion impacts the variance). 
 
-* Borrowing code from the class activity, simulate data from a model in which the Poisson regression assumptions are correct, and calculate $\widehat{\beta}_1$ for each simulation. Repeat the simulations many times and average your $\widehat{\beta}_1$ estimates to approximate $\mathbb{E}[\widehat{\beta}_1]$ and $Bias(\widehat{\beta}_1)$
-* Now modify your code, so that the distribution assumption is incorrect, and there is overdispersion in the data. Use the `rnbinom` function we used in class, and change the `size` parameter to vary the amount of overdispersion. For each `size` parameter you choose, approximate $Bias(\widehat{\beta}_1)$ for the Poisson regression model
+* Borrowing code from HW 6, simulate data from a model in which the Poisson regression assumptions are correct, and calculate $\widehat{\beta}_1$ for each simulation. Repeat the simulations many times and average your $\widehat{\beta}_1$ estimates to approximate $\mathbb{E}[\widehat{\beta}_1]$ and $Bias(\widehat{\beta}_1)$
+* Now modify your code, so that the distribution assumption is incorrect, and there is overdispersion in the data. Use the `rnbinom` function we used in class and HW 6, and change the `size` parameter to vary the amount of overdispersion. For each `size` parameter you choose, approximate $Bias(\widehat{\beta}_1)$ for the Poisson regression model
 * Finally, make and interpret a plot of $Bias(\widehat{\beta}_1)$ against the amount of overdispersion in the data
 
 :::{.question}
