@@ -9,27 +9,65 @@ editor_options:
   chunk_output_type: console
 ---
 
-**Due:** Monday, November 17, 11:59pm on Canvas
+**Due:** Friday, November 13, 11:59pm on Canvas
 
 **Instructions:** 
 
 Begin by downloading the HW 8 template from the course website:
 
-[https://sta214-f25.github.io/homework/hw_08_template.qmd](https://sta214-f25.github.io/homework/hw_08_template.qmd)
+[https://sta214-f26.github.io/homework/hw_08_template.qmd](https://sta214-f26.github.io/homework/hw_08_template.qmd)
 
 Save this template file to your computer, then open it in RStudio. As you complete the assignment, you will write down your answers to all questions in the file, and include all R code in code chunks.
 
-When you have completed the assignment, render your homework to HTML and submit on Canvas. 
+When you have completed the assignment, render your homework to HTML and submit on Canvas. *You must submit the rendered HTML on Canvas to receive full credit!*
 
-**Guidelines:**
+**Collaborators and AI statement:** At the top of your assignment, list any collaborators (Dr. Evans does not count -- he is a resource, not a collaborator), and provide an AI statement describing your use of AI to complete the questions. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, the HW questions on which you used AI, and a summary of the ways in which AI provided assistance. As described in the syllabus, AI use is permitted on homework assignments, but submissions without a complete AI statement may not receive full credit.
 
-* *You must submit the rendered HTML on Canvas to receive full credit!*
-* The course codebook has examples of writing math in Quarto and R Markdown documents. If your rendered math does not display correctly, or is hard to read, you will not receive full credit
+**Code guidelines:**
+
 * If a question requires code, and code is not provided, you will not receive full credit
 * You will be graded on the quality of your code. In addition to being correct, your code should also be easy to read
 
+# Some small simulation studies
 
-# Simulation study
+The purpose of this assignment is to use simulations to investigate questions about our statistical methods. In a simulation, we generate data from a known distribution and model. Because we know the true distribution and the true regression model, we can do things like check whether a fitted model is close to the truth, and assess how assumption violations impact our estimates.
+
+## Estimates and confidence intervals
+
+On [HW 6](https://sta214-f26.github.io/homework/hw_06.html), you conducted a simulation in which you investigated the effects of overdispersion on the coverage of confidence intervals. You saw in that assignment that, as the degree of overdispersion increases, the coverage of our confidence intervals decreases.
+
+Why does this occur? There are several possibilities:
+
+* The center of the confidence interval is in the wrong place, but the width of the interval is ok
+* The center of the confidence interval is in the right place, but the width of the interval is too small
+* The center of the confidence interval is in the wrong place, *and* the width of the interval is too small
+
+We already know that the width of the interval is too small -- this is why expanding the width with the quasi-Poisson model helps. The question is then whether the center of the confidence interval is in the right place or not.
+
+Our confidence interval for $\beta_j$ is centered around $\widehat{\beta}_j$. So our question is whether $\widehat{\beta}_j$ is close, on average, to $\beta_j$. To formalize this question, let's introduce a couple pieces of notation:
+
+* **Expectation:** The *expected value*, or *mean*, of $\widehat{\beta}_j$ is denoted by $\mathbb{E}[\widehat{\beta}_j]$. This is the average value of $\widehat{\beta}_j$ over many, many samples from the population
+* **Bias:** The *bias* of $\widehat{\beta}_j$ is the difference between its expectation and the true $\beta_j$:
+
+$$Bias(\widehat{\beta}_j) = \mathbb{E}[\widehat{\beta}_j] - \beta_j$$
+
+Ideally, we want estimators with **small bias** (i.e., we want to be right on average!).
+
+**Conducting a simulation:** We will explore whether the amount of overdispersion in our data effects the *bias* of our regression coefficient estimates from Poisson regression (we already know overdispersion impacts the variance). 
+
+* Borrowing code from the class activity, simulate data from a model in which the Poisson regression assumptions are correct, and calculate $\widehat{\beta}_1$ for each simulation. Repeat the simulations many times and average your $\widehat{\beta}_1$ estimates to approximate $\mathbb{E}[\widehat{\beta}_1]$ and $Bias(\widehat{\beta}_1)$
+* Now modify your code, so that the distribution assumption is incorrect, and there is overdispersion in the data. Use the `rnbinom` function we used in class, and change the `size` parameter to vary the amount of overdispersion. For each `size` parameter you choose, approximate $Bias(\widehat{\beta}_1)$ for the Poisson regression model
+* Finally, make and interpret a plot of $Bias(\widehat{\beta}_1)$ against the amount of overdispersion in the data
+
+:::{.question}
+#### Question 1
+
+Conduct and discuss the simulation described above. What is causing the decrease in coverage of confidence intervals for the Poisson model when there is overdispersion in the data?
+
+:::
+
+
+## The impact of zero-inflation
 
 We introduced ZIP models as a method to handle zero-inflation in count data. But what happens if we just ignore the zero-inflation, and fit a simpler count model (e.g., a Poisson model) instead? The goal of this section is to use simulations to explore what happens when we ignore possible zero-inflation.
 
@@ -62,28 +100,28 @@ m_zip <- zeroinfl(y ~ x | x)
 
 
 :::{.question}
-#### Question 1
+#### Question 2
 
 (a)  Run the provided code, and report the estimated coefficients for the Poisson and ZIP models. Which estimates of $\widehat{\beta}_0$ and $\widehat{\beta}_1$ are closer to the truth -- the Poisson estimates or the ZIP estimates?
 
-(b) Calculate a 95\% confidence interval for $\beta_1$ using the Poisson model. Does your interval contain $\beta_1$?
+(b) Calculate a 95\% confidence interval for $\beta_1$ using the Poisson model. (Use the R output for this, not bootstrapping). Does your interval contain $\beta_1$?
 
-(c) Calculate a 95\% confidence interval for $\beta_1$ using the ZIP model. Does your interval contain $\beta_1$?
+(c) Calculate a 95\% confidence interval for $\beta_1$ using the ZIP model. (Use the R output for this, not bootstrapping). Does your interval contain $\beta_1$?
 :::
 
 :::{.question}
-#### Question 2
+#### Question 3
 
-Repeat question 1 many times. What fraction of your confidence intervals contain $\beta_1$ for the Poisson model? For the ZIP model?
+Repeat question 2 many times. What fraction of your confidence intervals contain $\beta_1$ for the Poisson model? For the ZIP model?
 
 :::
 
 In the simple ZIP model above, $\gamma_0$ controls the amount of zero-inflation. When $\gamma_0 = 0$, 50\% of the data will be excess 0s. Smaller (more negative) values of $\gamma_0$ result in less zero-inflation, while larger values of $\gamma_0$ result in more zero-inflation.
 
 :::{.question}
-#### Question 3
+#### Question 4
 
-(a) Repeat question 2 for different values of $\gamma_0$, and make a plot showing the coverage of Poisson and ZIP confidence intervals for different values of $\gamma_0$.
+(a) Repeat question 3 for different values of $\gamma_0$, and make a plot showing the coverage of Poisson and ZIP confidence intervals for different values of $\gamma_0$.
 
 (b) At what value of $\gamma_0$ do we see a noticeable difference in coverage for the Poisson and ZIP model intervals?
 
