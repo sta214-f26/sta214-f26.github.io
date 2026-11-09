@@ -1,6 +1,7 @@
 ---
 title: "Class activity"
 format: html
+callout-icon: false
 ---
 
 **Instructions:** 
@@ -16,10 +17,15 @@ Anxiety can affect musicians before performances, and can negatively affect thei
 * `id`: a unique identifier for the musician
 * `na`: negative affect score (a measure of anxiety)
 * `large`: whether the musician was performing as part of a large ensemble (large = 1), or as part of a small ensemble or solo (large = 0)
+* `audience`: who attended (Instructor, Public, Students, or Juried)
 
-The researchers hypothesize that students will be less anxious when performing in large ensembles. Furthermore, the researchers suspect that overall anxiety varies between individuals, but that the effects of ensemble size (large vs. small) are the *same* for each individual. They therefore write down the following mixed effects model:
+The researchers hypothesize that, after accounting for audience type, students will be less anxious when performing in large ensembles. Furthermore, the researchers suspect that overall anxiety varies between individuals, but that the effects of ensemble size (large vs. small) and audience type are the *same* for each individual. They therefore write down the following mixed effects model:
 
-$$Anxiety_{ij} = \beta_0 + \beta_1 Large_{ij} + u_i + \varepsilon_{ij}$$
+$$
+\begin{aligned}
+Anxiety_{ij} = \beta_0 + \beta_1 \ JuriedPerformance_{ij} + \beta_2 \ PublicPerformance_{ij} \\ \hspace{1cm} + \ \beta_3 \ StudentPerformance_{ij}  + \beta_4 \ LargeEnsemble_{ij} + u_i + \varepsilon_{ij}
+\end{aligned}
+$$
 
 $u_i \overset{iid}{\sim} N(0, \sigma_u^2)$, $\varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
 
@@ -37,17 +43,24 @@ music <- read_csv("https://sta214-f26.github.io/class_activities/music.csv")
 
 # Questions
 
-1. Fit the mixed effects model described above:
+::: {.callout-tip}
+## Question 1
+Fit the mixed effects model described above:
 
 ```{r, eval=F}
-m1 <- lmer(na ~ large + (1|id), data = music)
+m1 <- lmer(na ~ audience + large + (1|id), data = music)
 summary(m1)
 ```
 
+:::
 
-2. Does the fitted model support the researchers' hypothesis that students will be less anxious when performing in large ensembles? Explain your answer.
 
-3. Does the fitted model support the researchers' hypothesis that there is variability in anxiety between students? Calculate and interpret a statistic that supports your answer, and explain your reasoning.
+::: {.callout-tip}
+## Question 2
+
+Does the fitted model support the researchers' hypothesis that students will be less anxious when performing in large ensembles? Explain your answer.
+:::
+
 
 ## Model diagnostics
 
@@ -55,12 +68,34 @@ Now let's check assumptions for our fitted model.
 
 One assumption our model is making is that the variance of the residual term $\varepsilon_{ij}$ is the same for each student. 
 
-4. Create a scatterplot showing the residuals for your fitted model, plotted against student ID (normally I would suggest boxplots here, but there aren't enough observations for each student). Does it seem plausible that the variance of the residuals is the same for each student?
-    * Just like with a linear regression model, the `residuals` function can be used to extract residuals from the fitted mixed effects model. E.g. `residuals(m1)` will return the residuals for the fitted model
+::: {.callout-tip}
+## Question 3
+
+Create a scatterplot showing the residuals for your fitted model, plotted against student ID (normally I would suggest boxplots here, but there aren't enough observations for each student):
+
+
+```{r eval=F}
+data.frame(id = music$id, 
+           residuals = residuals(m1)) |>
+  ggplot(aes(x = id, y = residuals)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Student ID", y = "Residual")
+```
+
+
+Does it seem plausible that the variance of the residuals is the same for each student?
+
+Just like with a linear regression model, the `residuals` function can be used to extract residuals from the fitted mixed effects model. E.g. `residuals(m1)` will return the residuals for the fitted model
+
+:::
 
 Another assumption is that the residual term $\varepsilon_{ij}$ follows a normal distribution.
 
-5. Use the following code to create a QQ plot for the residuals, and discuss the results:
+::: {.callout-tip}
+## Question 4
+
+Use the following code to create a QQ plot for the residuals, and discuss the results:
 
 ```{r, eval=F}
 data.frame(resid = residuals(m1)) |>
@@ -73,8 +108,13 @@ data.frame(resid = residuals(m1)) |>
   theme(axis.text.x=element_blank())
 ```
 
+:::
 
-6. Remember that we can use a plot lineup to assess whether any departures from the diagonal line are due to random chance, or evidence of true non-normality. Here is code to create a lineup of QQ plots for the fitted mixed model. Run the code and discuss the results:
+
+::: {.callout-tip}
+## Question 5
+
+Remember that we can use a plot lineup to assess whether any departures from the diagonal line are due to random chance, or evidence of true non-normality. Here is code to create a lineup of QQ plots for the fitted mixed model. Run the code and discuss the results:
 
 ```{r, eval=F}
 lmm_resids <- function(f){
@@ -92,12 +132,182 @@ regressinator::model_lineup(m1, lmm_resids, 20) |>
   theme(axis.text.x=element_blank())
 ```
 
+:::
+
 Finally, let's look at the distribution of the random effects $u_i$, which we also assume is normal.
 
-7. Create a QQ plot for the predicted random effects $\widehat{u}_i$. Does normality seem plausible?
+::: {.callout-tip}
+## Question 6
+
+Create a QQ plot for the predicted random effects $\widehat{u}_i$. Does normality seem plausible?
     * If your model is called `m1`, then ``ranef(m1)$id$`(Intercept)` `` will return $\widehat{u}_i$
+    
+:::
 
+## Inference
 
+The researchers want to know if, after accounting for audience type, students will be less anxious when performing in large ensembles. This means that, for the mixed model above, we want to test
 
+$$H_0: \beta_4 = 0 \hspace{1cm} H_A: \beta_4 < 0$$
 
+One way to carry out this test is with **parametric bootstrapping:**
 
+* Calculate a test statistic on the observed data
+* Fit a reduced model (for which the null hypothesis is true)
+* Simulate data from the reduced model
+* Re-fit the model and re-compute the test statistic on the simulated data
+* Repeat many times
+
+### Fitting a reduced model
+
+::: {.callout-tip}
+## Question 7
+
+Fit a reduced model (call it `m0`) for which the null hypothesis is true (no effect of ensemble size).
+
+```{r, eval=F}
+m0 <- lmer(na ~ ..., data = music)
+summary(m0)
+```
+
+:::
+
+### Simulating data from the reduced model
+
+How do we simulate data from the reduced model? Remember that we combine predictions from the reduced model with new, simulated random effects and noise. For this data, a new anxiety score is given by
+
+$$
+\begin{aligned}
+Anxiety_{ij}^* = \widehat{\beta}_0 + \widehat{\beta}_1 \ JuriedPerformance_{ij} + \widehat{\beta}_2 \ PublicPerformance_{ij} \\ \hspace{1cm} + \ \widehat{\beta}_3 \ StudentPerformance_{ij} + u_i^* + \varepsilon_{ij}^*
+\end{aligned}
+$$
+
+where $u_i^* \sim N(0, \widehat{\sigma}_u^2)$ and $\varepsilon_{ij}^* \sim N(0, \widehat{\sigma}_\varepsilon^2)$.
+
+There are then three things we need to do:
+
+* Generate $u_i^* \sim N(0, \widehat{\sigma}_u^2)$
+* Generate $\varepsilon_{ij}^* \sim N(0, \widehat{\sigma}_\varepsilon^2)$
+* Calculate 
+
+$$\widehat{\beta}_0 + \widehat{\beta}_1 \ JuriedPerformance_{ij} + \widehat{\beta}_2 \ PublicPerformance_{ij} + \\ \ \widehat{\beta}_3 \ StudentPerformance_{ij}$$
+
+::: {.callout-tip}
+## Question 8
+
+Fill in the code below to generate a new random effect for every musician in the data:
+
+```{r eval=F}
+re_new <- rnorm(n = ..., mean = 0, sd = ...)
+```
+
+Here `n` should be the number of musicians, `mean` should be the mean of the normal distribution for $u$, and `sd` should be our estimate of the *standard deviation* $\widehat{\sigma}_u$.
+
+:::
+
+::: {.callout-tip}
+## Question 9
+
+Fill in the code below to generate a new $\varepsilon_{ij}^*$ for every performance in the data:
+
+```{r eval=F}
+noise_new <- rnorm(n = ..., mean = 0, sd = ...)
+```
+
+Here `n` should be the total number of *rows* in the data, `mean` should be the mean of the normal distribution for $\varepsilon$, and `sd` should be our estimate of the *standard deviation* $\widehat{\sigma}_\varepsilon$.
+
+:::
+
+Now we can put everything together to get our parametric bootstrap values $Anxiety_{ij}^*$:
+
+```{r, eval=F}
+# predictions from fixed effects
+fitted_values <- predict(m0, re.form = NA)
+
+# simulated random effects
+re_data <- data.frame(id = unique(music$id),
+                        re = re_new) |>
+    right_join(dplyr::select(music, id), by = "id")
+
+# create parametric bootstrap data with the relevant variables
+music_boot <- data.frame(id = music$id,
+                         audience = music$audience,
+                         large = music$large,
+                         na = fitted_values + re_data$re + noise_new)
+```
+
+::: {.callout-tip}
+## Question 10
+
+Re-fit the full model on the parametric bootstrap data, and report the estimated coefficient $\widehat{\beta}_4$:
+
+```{r, eval=F}
+m1_boot <- lmer(na ~ ..., data = music_boot)
+summary(m1_boot)$coefficients
+```
+
+:::
+
+### Repeating
+
+::: {.callout-tip}
+## Question 11
+
+Fill in the code below to take many parametric bootstrap samples and store the results.
+
+```{r eval=F}
+nsim <- 1000
+boot_ests <- rep(NA, nsim)
+
+for(i in 1:nsim){
+  # simulate new random effects (question 8)
+  re_new <- ...
+  
+  # simulate new noise (question 9)
+  noise_new <- ...
+  
+  # combine to create the parametric bootstrap sample
+  re_data <- data.frame(id = unique(music$id),
+                        re = re_new) |>
+    right_join(dplyr::select(music, id), by = "id")
+  
+  music_boot <- data.frame(id = music$id,
+                           audience = music$audience,
+                           large = music$large,
+                           na = fitted_values + re_data$re + noise_new)
+  
+  # re-fit the full model (question 10)
+  m1_boot <- ...
+  
+  # store the relevant estimated coefficient
+  boot_ests[i] <- summary(m1_boot)$coefficients["large",1]
+}
+
+hist(boot_ests)
+```
+
+:::
+
+::: {.callout-tip}
+## Question 12
+
+Based on the parametric bootstrap results, do you think that after accounting for audience type, students will be less anxious when performing in large ensembles?
+
+:::
+
+### Non-normality?
+
+We used a normal distribution to generate $\varepsilon_{ij}^*$. But, we saw in the model diagnostics that the residuals are not really normal. How much does this matter?
+
+::: {.callout-tip}
+## Question 13
+
+Repeat question 11, but this time generate $\varepsilon_{ij}^*$ by resampling the observed residuals rather than simulating from the estimated normal distribution:
+
+```{r eval=F}
+noise_new <- sample(residuals(m0), nrow(music))
+```
+
+Do your results and conclusions change?
+
+:::

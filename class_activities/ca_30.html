@@ -143,9 +143,14 @@ window.Quarto = {
 <li><code>id</code>: a unique identifier for the musician</li>
 <li><code>na</code>: negative affect score (a measure of anxiety)</li>
 <li><code>large</code>: whether the musician was performing as part of a large ensemble (large = 1), or as part of a small ensemble or solo (large = 0)</li>
+<li><code>audience</code>: who attended (Instructor, Public, Students, or Juried)</li>
 </ul>
-<p>The researchers hypothesize that students will be less anxious when performing in large ensembles. Furthermore, the researchers suspect that overall anxiety varies between individuals, but that the effects of ensemble size (large vs.&nbsp;small) are the <em>same</em> for each individual. They therefore write down the following mixed effects model:</p>
-<p><span class="math display">\[Anxiety_{ij} = \beta_0 + \beta_1 Large_{ij} + u_i + \varepsilon_{ij}\]</span></p>
+<p>The researchers hypothesize that, after accounting for audience type, students will be less anxious when performing in large ensembles. Furthermore, the researchers suspect that overall anxiety varies between individuals, but that the effects of ensemble size (large vs.&nbsp;small) and audience type are the <em>same</em> for each individual. They therefore write down the following mixed effects model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+Anxiety_{ij} = \beta_0 + \beta_1 \ JuriedPerformance_{ij} + \beta_2 \ PublicPerformance_{ij} \\ \hspace{1cm} + \ \beta_3 \ StudentPerformance_{ij}  + \beta_4 \ LargeEnsemble_{ij} + u_i + \varepsilon_{ij}
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(u_i \overset{iid}{\sim} N(0, \sigma_u^2)\)</span>, <span class="math inline">\(\varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)\)</span></p>
 <section id="downloading-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="downloading-the-data">Downloading the data</h3>
@@ -160,66 +165,326 @@ window.Quarto = {
 </section>
 <section id="questions" class="level1">
 <h1>Questions</h1>
-<ol type="1">
-<li>Fit the mixed effects model described above:</li>
-</ol>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 1
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fit the mixed effects model described above:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(na <span class="sc">~</span> large <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), <span class="at">data =</span> music)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(na <span class="sc">~</span> audience <span class="sc">+</span> large <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), <span class="at">data =</span> music)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<ol start="2" type="1">
-<li><p>Does the fitted model support the researchers’ hypothesis that students will be less anxious when performing in large ensembles? Explain your answer.</p></li>
-<li><p>Does the fitted model support the researchers’ hypothesis that there is variability in anxiety between students? Calculate and interpret a statistic that supports your answer, and explain your reasoning.</p></li>
-</ol>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 2
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Does the fitted model support the researchers’ hypothesis that students will be less anxious when performing in large ensembles? Explain your answer.</p>
+</div>
+</div>
 <section id="model-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="model-diagnostics">Model diagnostics</h2>
 <p>Now let’s check assumptions for our fitted model.</p>
 <p>One assumption our model is making is that the variance of the residual term <span class="math inline">\(\varepsilon_{ij}\)</span> is the same for each student.</p>
-<ol start="4" type="1">
-<li>Create a scatterplot showing the residuals for your fitted model, plotted against student ID (normally I would suggest boxplots here, but there aren’t enough observations for each student). Does it seem plausible that the variance of the residuals is the same for each student?
-<ul>
-<li>Just like with a linear regression model, the <code>residuals</code> function can be used to extract residuals from the fitted mixed effects model. E.g. <code>residuals(m1)</code> will return the residuals for the fitted model</li>
-</ul></li>
-</ol>
-<p>Another assumption is that the residual term <span class="math inline">\(\varepsilon_{ij}\)</span> follows a normal distribution.</p>
-<ol start="5" type="1">
-<li>Use the following code to create a QQ plot for the residuals, and discuss the results:</li>
-</ol>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">residuals</span>(m1)) <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq_line</span>() <span class="sc">+</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Theoretical normal quantiles"</span>, </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed residual quantiles"</span>) <span class="sc">+</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
 </div>
-<ol start="6" type="1">
-<li>Remember that we can use a plot lineup to assess whether any departures from the diagonal line are due to random chance, or evidence of true non-normality. Here is code to create a lineup of QQ plots for the fitted mixed model. Run the code and discuss the results:</li>
-</ol>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 3
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a scatterplot showing the residuals for your fitted model, plotted against student ID (normally I would suggest boxplots here, but there aren’t enough observations for each student):</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>lmm_resids <span class="ot">&lt;-</span> <span class="cf">function</span>(f){</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">residuals</span>(f))</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>regressinator<span class="sc">::</span><span class="fu">model_lineup</span>(m1, lmm_resids, <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq_line</span>() <span class="sc">+</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(.sample)) <span class="sc">+</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Theoretical normal quantiles"</span>, </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed residual quantiles"</span>) <span class="sc">+</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">id =</span> music<span class="sc">$</span>id, </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">residuals =</span> <span class="fu">residuals</span>(m1)) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> id, <span class="at">y =</span> residuals)) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Student ID"</span>, <span class="at">y =</span> <span class="st">"Residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Does it seem plausible that the variance of the residuals is the same for each student?</p>
+<p>Just like with a linear regression model, the <code>residuals</code> function can be used to extract residuals from the fitted mixed effects model. E.g. <code>residuals(m1)</code> will return the residuals for the fitted model</p>
+</div>
+</div>
+<p>Another assumption is that the residual term <span class="math inline">\(\varepsilon_{ij}\)</span> follows a normal distribution.</p>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 4
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use the following code to create a QQ plot for the residuals, and discuss the results:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">residuals</span>(m1)) <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq_line</span>() <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Theoretical normal quantiles"</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed residual quantiles"</span>) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 5
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Remember that we can use a plot lineup to assess whether any departures from the diagonal line are due to random chance, or evidence of true non-normality. Here is code to create a lineup of QQ plots for the fitted mixed model. Run the code and discuss the results:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lmm_resids <span class="ot">&lt;-</span> <span class="cf">function</span>(f){</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">residuals</span>(f))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>regressinator<span class="sc">::</span><span class="fu">model_lineup</span>(m1, lmm_resids, <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq_line</span>() <span class="sc">+</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(.sample)) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Theoretical normal quantiles"</span>, </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed residual quantiles"</span>) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
 </div>
 <p>Finally, let’s look at the distribution of the random effects <span class="math inline">\(u_i\)</span>, which we also assume is normal.</p>
-<ol start="7" type="1">
-<li>Create a QQ plot for the predicted random effects <span class="math inline">\(\widehat{u}_i\)</span>. Does normality seem plausible?
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 6
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a QQ plot for the predicted random effects <span class="math inline">\(\widehat{u}_i\)</span>. Does normality seem plausible? * If your model is called <code>m1</code>, then <code>ranef(m1)$id$`(Intercept)`</code> will return <span class="math inline">\(\widehat{u}_i\)</span></p>
+</div>
+</div>
+</section>
+<section id="inference" class="level2">
+<h2 class="anchored" data-anchor-id="inference">Inference</h2>
+<p>The researchers want to know if, after accounting for audience type, students will be less anxious when performing in large ensembles. This means that, for the mixed model above, we want to test</p>
+<p><span class="math display">\[H_0: \beta_4 = 0 \hspace{1cm} H_A: \beta_4 &lt; 0\]</span></p>
+<p>One way to carry out this test is with <strong>parametric bootstrapping:</strong></p>
 <ul>
-<li>If your model is called <code>m1</code>, then <code>ranef(m1)$id$`(Intercept)`</code> will return <span class="math inline">\(\widehat{u}_i\)</span></li>
-</ul></li>
-</ol>
+<li>Calculate a test statistic on the observed data</li>
+<li>Fit a reduced model (for which the null hypothesis is true)</li>
+<li>Simulate data from the reduced model</li>
+<li>Re-fit the model and re-compute the test statistic on the simulated data</li>
+<li>Repeat many times</li>
+</ul>
+<section id="fitting-a-reduced-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-a-reduced-model">Fitting a reduced model</h3>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 7
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fit a reduced model (call it <code>m0</code>) for which the null hypothesis is true (no effect of ensemble size).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m0 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(na <span class="sc">~</span> ..., <span class="at">data =</span> music)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="simulating-data-from-the-reduced-model" class="level3">
+<h3 class="anchored" data-anchor-id="simulating-data-from-the-reduced-model">Simulating data from the reduced model</h3>
+<p>How do we simulate data from the reduced model? Remember that we combine predictions from the reduced model with new, simulated random effects and noise. For this data, a new anxiety score is given by</p>
+<p><span class="math display">\[
+\begin{aligned}
+Anxiety_{ij}^* = \widehat{\beta}_0 + \widehat{\beta}_1 \ JuriedPerformance_{ij} + \widehat{\beta}_2 \ PublicPerformance_{ij} \\ \hspace{1cm} + \ \widehat{\beta}_3 \ StudentPerformance_{ij} + u_i^* + \varepsilon_{ij}^*
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(u_i^* \sim N(0, \widehat{\sigma}_u^2)\)</span> and <span class="math inline">\(\varepsilon_{ij}^* \sim N(0, \widehat{\sigma}_\varepsilon^2)\)</span>.</p>
+<p>There are then three things we need to do:</p>
+<ul>
+<li>Generate <span class="math inline">\(u_i^* \sim N(0, \widehat{\sigma}_u^2)\)</span></li>
+<li>Generate <span class="math inline">\(\varepsilon_{ij}^* \sim N(0, \widehat{\sigma}_\varepsilon^2)\)</span></li>
+<li>Calculate</li>
+</ul>
+<p><span class="math display">\[\widehat{\beta}_0 + \widehat{\beta}_1 \ JuriedPerformance_{ij} + \widehat{\beta}_2 \ PublicPerformance_{ij} + \\ \ \widehat{\beta}_3 \ StudentPerformance_{ij}\]</span></p>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 8
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fill in the code below to generate a new random effect for every musician in the data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>re_new <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> ..., <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> ...)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here <code>n</code> should be the number of musicians, <code>mean</code> should be the mean of the normal distribution for <span class="math inline">\(u\)</span>, and <code>sd</code> should be our estimate of the <em>standard deviation</em> <span class="math inline">\(\widehat{\sigma}_u\)</span>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 9
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fill in the code below to generate a new <span class="math inline">\(\varepsilon_{ij}^*\)</span> for every performance in the data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>noise_new <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> ..., <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> ...)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here <code>n</code> should be the total number of <em>rows</em> in the data, <code>mean</code> should be the mean of the normal distribution for <span class="math inline">\(\varepsilon\)</span>, and <code>sd</code> should be our estimate of the <em>standard deviation</em> <span class="math inline">\(\widehat{\sigma}_\varepsilon\)</span>.</p>
+</div>
+</div>
+<p>Now we can put everything together to get our parametric bootstrap values <span class="math inline">\(Anxiety_{ij}^*\)</span>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predictions from fixed effects</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fitted_values <span class="ot">&lt;-</span> <span class="fu">predict</span>(m0, <span class="at">re.form =</span> <span class="cn">NA</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># simulated random effects</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>re_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="fu">unique</span>(music<span class="sc">$</span>id),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">re =</span> re_new) <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">right_join</span>(dplyr<span class="sc">::</span><span class="fu">select</span>(music, id), <span class="at">by =</span> <span class="st">"id"</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># create parametric bootstrap data with the relevant variables</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>music_boot <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> music<span class="sc">$</span>id,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">audience =</span> music<span class="sc">$</span>audience,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                         <span class="at">large =</span> music<span class="sc">$</span>large,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                         <span class="at">na =</span> fitted_values <span class="sc">+</span> re_data<span class="sc">$</span>re <span class="sc">+</span> noise_new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 10
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Re-fit the full model on the parametric bootstrap data, and report the estimated coefficient <span class="math inline">\(\widehat{\beta}_4\)</span>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>m1_boot <span class="ot">&lt;-</span> <span class="fu">lmer</span>(na <span class="sc">~</span> ..., <span class="at">data =</span> music_boot)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1_boot)<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="repeating" class="level3">
+<h3 class="anchored" data-anchor-id="repeating">Repeating</h3>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 11
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fill in the code below to take many parametric bootstrap samples and store the results.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>boot_ests <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, nsim)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate new random effects (question 8)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  re_new <span class="ot">&lt;-</span> ...</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># simulate new noise (question 9)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  noise_new <span class="ot">&lt;-</span> ...</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># combine to create the parametric bootstrap sample</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  re_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="fu">unique</span>(music<span class="sc">$</span>id),</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>                        <span class="at">re =</span> re_new) <span class="sc">|&gt;</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">right_join</span>(dplyr<span class="sc">::</span><span class="fu">select</span>(music, id), <span class="at">by =</span> <span class="st">"id"</span>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  music_boot <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> music<span class="sc">$</span>id,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">audience =</span> music<span class="sc">$</span>audience,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>                           <span class="at">large =</span> music<span class="sc">$</span>large,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>                           <span class="at">na =</span> fitted_values <span class="sc">+</span> re_data<span class="sc">$</span>re <span class="sc">+</span> noise_new)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># re-fit the full model (question 10)</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  m1_boot <span class="ot">&lt;-</span> ...</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># store the relevant estimated coefficient</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  boot_ests[i] <span class="ot">&lt;-</span> <span class="fu">summary</span>(m1_boot)<span class="sc">$</span>coefficients[<span class="st">"large"</span>,<span class="dv">1</span>]</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(boot_ests)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 12
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Based on the parametric bootstrap results, do you think that after accounting for audience type, students will be less anxious when performing in large ensembles?</p>
+</div>
+</div>
+</section>
+<section id="non-normality" class="level3">
+<h3 class="anchored" data-anchor-id="non-normality">Non-normality?</h3>
+<p>We used a normal distribution to generate <span class="math inline">\(\varepsilon_{ij}^*\)</span>. But, we saw in the model diagnostics that the residuals are not really normal. How much does this matter?</p>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Question 13
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Repeat question 11, but this time generate <span class="math inline">\(\varepsilon_{ij}^*\)</span> by resampling the observed residuals rather than simulating from the estimated normal distribution:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>noise_new <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">residuals</span>(m0), <span class="fu">nrow</span>(music))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Do your results and conclusions change?</p>
+</div>
+</div>
+</section>
 </section>
 </section>
 
