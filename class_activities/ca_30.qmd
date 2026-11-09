@@ -28,13 +28,22 @@ $u_i \overset{iid}{\sim} N(0, \sigma_u^2)$, $\varepsilon_{ij} \overset{iid}{\sim
 
 The following code imports the data and saves it as a data frame called `music`:
 
-```r
+```{r, message=F, warning=F}
+library(tidyverse)
+library(lme4)
+
 music <- read_csv("https://sta214-f26.github.io/class_activities/music.csv")
 ```
 
 # Questions
 
-1. Fit the mixed effects model described above.
+1. Fit the mixed effects model described above:
+
+```{r, eval=F}
+m1 <- lmer(na ~ large + (1|id), data = music)
+summary(m1)
+```
+
 
 2. Does the fitted model support the researchers' hypothesis that students will be less anxious when performing in large ensembles? Explain your answer.
 
@@ -47,17 +56,46 @@ Now let's check assumptions for our fitted model.
 One assumption our model is making is that the variance of the residual term $\varepsilon_{ij}$ is the same for each student. 
 
 4. Create a scatterplot showing the residuals for your fitted model, plotted against student ID (normally I would suggest boxplots here, but there aren't enough observations for each student). Does it seem plausible that the variance of the residuals is the same for each student?
-    * Just like with a linear regression model, the `residuals` function can be used to extract residuals from the fitted mixed effects model.
+    * Just like with a linear regression model, the `residuals` function can be used to extract residuals from the fitted mixed effects model. E.g. `residuals(m1)` will return the residuals for the fitted model
 
 Another assumption is that the residual term $\varepsilon_{ij}$ follows a normal distribution.
 
-5. Create a QQ plot for the residuals. Does it seem reasonable to assume normality here?
-    * If you like `ggplot`, then `geom_qq` and `geom_qq_line` may be helpful
+5. Use the following code to create a QQ plot for the residuals, and discuss the results:
+
+```{r, eval=F}
+data.frame(resid = residuals(m1)) |>
+  ggplot(aes(sample = resid)) +
+  geom_qq(size = 0.5) +
+  geom_qq_line() +
+  labs(x = "Theoretical normal quantiles", 
+       y = "Observed residual quantiles") +
+  theme_bw() +
+  theme(axis.text.x=element_blank())
+```
+
+
+6. Remember that we can use a plot lineup to assess whether any departures from the diagonal line are due to random chance, or evidence of true non-normality. Here is code to create a lineup of QQ plots for the fitted mixed model. Run the code and discuss the results:
+
+```{r, eval=F}
+lmm_resids <- function(f){
+  data.frame(resid = residuals(f))
+}
+
+regressinator::model_lineup(m1, lmm_resids, 20) |>
+  ggplot(aes(sample = resid)) +
+  geom_qq(size = 0.5) +
+  geom_qq_line() +
+  facet_wrap(vars(.sample)) +
+  labs(x = "Theoretical normal quantiles", 
+       y = "Observed residual quantiles") +
+  theme_bw() +
+  theme(axis.text.x=element_blank())
+```
 
 Finally, let's look at the distribution of the random effects $u_i$, which we also assume is normal.
 
-6. Create a QQ plot for the estimated random effects $\widehat{u}_i$. Does normality seem plausible?
-    * If your model is called `m1`, then `coef(m1)$id[,1]` will return $\widehat{\beta}_0 + \widehat{u}_i$
+7. Create a QQ plot for the predicted random effects $\widehat{u}_i$. Does normality seem plausible?
+    * If your model is called `m1`, then ``ranef(m1)$id$`(Intercept)` `` will return $\widehat{u}_i$
 
 
 

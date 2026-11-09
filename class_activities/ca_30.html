@@ -150,13 +150,24 @@ window.Quarto = {
 <section id="downloading-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="downloading-the-data">Downloading the data</h3>
 <p>The following code imports the data and saves it as a data frame called <code>music</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>music <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://sta214-f26.github.io/class_activities/music.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>music <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://sta214-f26.github.io/class_activities/music.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 </section>
 <section id="questions" class="level1">
 <h1>Questions</h1>
 <ol type="1">
-<li><p>Fit the mixed effects model described above.</p></li>
+<li>Fit the mixed effects model described above:</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(na <span class="sc">~</span> large <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), <span class="at">data =</span> music)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol start="2" type="1">
 <li><p>Does the fitted model support the researchers’ hypothesis that students will be less anxious when performing in large ensembles? Explain your answer.</p></li>
 <li><p>Does the fitted model support the researchers’ hypothesis that there is variability in anxiety between students? Calculate and interpret a statistic that supports your answer, and explain your reasoning.</p></li>
 </ol>
@@ -167,21 +178,46 @@ window.Quarto = {
 <ol start="4" type="1">
 <li>Create a scatterplot showing the residuals for your fitted model, plotted against student ID (normally I would suggest boxplots here, but there aren’t enough observations for each student). Does it seem plausible that the variance of the residuals is the same for each student?
 <ul>
-<li>Just like with a linear regression model, the <code>residuals</code> function can be used to extract residuals from the fitted mixed effects model.</li>
+<li>Just like with a linear regression model, the <code>residuals</code> function can be used to extract residuals from the fitted mixed effects model. E.g. <code>residuals(m1)</code> will return the residuals for the fitted model</li>
 </ul></li>
 </ol>
 <p>Another assumption is that the residual term <span class="math inline">\(\varepsilon_{ij}\)</span> follows a normal distribution.</p>
 <ol start="5" type="1">
-<li>Create a QQ plot for the residuals. Does it seem reasonable to assume normality here?
-<ul>
-<li>If you like <code>ggplot</code>, then <code>geom_qq</code> and <code>geom_qq_line</code> may be helpful</li>
-</ul></li>
+<li>Use the following code to create a QQ plot for the residuals, and discuss the results:</li>
 </ol>
-<p>Finally, let’s look at the distribution of the random effects <span class="math inline">\(u_i\)</span>, which we also assume is normal.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">residuals</span>(m1)) <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq_line</span>() <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Theoretical normal quantiles"</span>, </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed residual quantiles"</span>) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 <ol start="6" type="1">
-<li>Create a QQ plot for the estimated random effects <span class="math inline">\(\widehat{u}_i\)</span>. Does normality seem plausible?
+<li>Remember that we can use a plot lineup to assess whether any departures from the diagonal line are due to random chance, or evidence of true non-normality. Here is code to create a lineup of QQ plots for the fitted mixed model. Run the code and discuss the results:</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>lmm_resids <span class="ot">&lt;-</span> <span class="cf">function</span>(f){</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">residuals</span>(f))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>regressinator<span class="sc">::</span><span class="fu">model_lineup</span>(m1, lmm_resids, <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_qq_line</span>() <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(.sample)) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Theoretical normal quantiles"</span>, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed residual quantiles"</span>) <span class="sc">+</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Finally, let’s look at the distribution of the random effects <span class="math inline">\(u_i\)</span>, which we also assume is normal.</p>
+<ol start="7" type="1">
+<li>Create a QQ plot for the predicted random effects <span class="math inline">\(\widehat{u}_i\)</span>. Does normality seem plausible?
 <ul>
-<li>If your model is called <code>m1</code>, then <code>coef(m1)$id[,1]</code> will return <span class="math inline">\(\widehat{\beta}_0 + \widehat{u}_i\)</span></li>
+<li>If your model is called <code>m1</code>, then <code>ranef(m1)$id$`(Intercept)`</code> will return <span class="math inline">\(\widehat{u}_i\)</span></li>
 </ul></li>
 </ol>
 </section>
