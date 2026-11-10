@@ -8,6 +8,7 @@ November 9
 
 November 11
 : Mixed models 
+  : [activity](https://sta214-f26.github.io/class_activities/ca_30.html)
 
   
 November 13
