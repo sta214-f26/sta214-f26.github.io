@@ -15,4 +15,5 @@ November 11
 
   
 November 13
-: Mixed models
+: Extended example
+  : [slides](https://sta214-f26.github.io/slides/lecture_31.pdf)
