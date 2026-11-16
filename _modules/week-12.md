@@ -16,4 +16,4 @@ November 11
   
 November 13
 : Extended example
-  : [slides](https://sta214-f26.github.io/slides/lecture_31.pdf)
+  : [slides](https://sta214-f26.github.io/slides/lecture_31.pdf), [activity 1](https://sta214-f26.github.io/class_activities/ca_31_handout.pdf), [activity 2](https://sta214-f26.github.io/class_activities/ca_31_handout_4.pdf), [activity 3](https://sta214-f26.github.io/class_activities/ca_31_handout_2.pdf), [activity 4](https://sta214-f26.github.io/class_activities/ca_31_handout_3.pdf)
