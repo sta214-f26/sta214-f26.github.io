@@ -7,18 +7,30 @@ output:
 link-citations: yes
 ---
 
-**Due dates:** Friday, December 5 at 11:59pm on Canvas.
+**Due dates:** Friday, December 4 at 11:59pm on Canvas.
 
-**Submission:** A template file is provided, with a rough outline: [project_1_3_template.qmd](https://sta214-f25.github.io/projects/project_1_3_template.qmd)
+**Submission:** A template file is provided: [project_1_3_template.qmd](https://sta214-f26.github.io/projects/project_1_3_template.qmd)
 
 Once you have completed the report, submit *both* your 
 rendered HTML file and the Quarto file to Canvas.
 
+## AI rules
+
+You may *not* use AI to generate big ideas for your project. For example, you may not ask AI which variables to include in the model, which plots to make, which hypotheses to test, etc. Unauthorized use of AI in these ways may result in a 0 on the project.
+
+You may use AI for smaller questions, such as help debugging code or adjusting the labels on a graph. 
+
+You must provide an AI statement describing your use of AI. If you did not use AI in any way, let me know that too. If you did use AI, provide: the model used, and a summary of the ways in which AI provided assistance. Submissions without a complete and accurate AI statement may not receive full credit.
+
 # Overview
 
-This semester, you will complete a project in which you use logistic regression to investigate a research question of your choosing. You will then write a report that communicates the results of your analysis and draws a conclusion about your research question. 
+This semester, you will complete a project in which you use logistic regression to investigate a research question of your choosing. You will then write a report that communicates the results of your analysis and draws a conclusion about your research question, and finally present your work to me. 
 
-In the final part of the project, you will combine your work from the previous parts to create a full report.
+This project will be broken into several different parts; I will provide feedback on each part.
+
+* **Part 1** (20 pts): identifying a research question and dataset; EDA to explore the data and variables.
+* **Part 2** (35 pts): further EDA; model fitting and diagnostics; inference.
+* **Part 3** (45 pts): final report, combining work from parts 1 and 2, and some additional analysis and writing. Also incorporating any changes based on feedback to first two parts.
 
 
 # Your task in Part III
@@ -54,7 +66,7 @@ This is the first section in your report, but it is actually the last thing you 
 Write 2-3 paragraphs in which you:
 
 * Motivate the research questions
-* Describe where the data came from
+* Describe where the data came from (with citations)
 * Provide background on the dataset
 * Finish by summarizing what you will do in the report
 
@@ -89,11 +101,13 @@ First, we need to describe the regression model and give the fitted model. Using
 Next, we want to verify that the regression assumptions are reasonable for our model. Write a couple paragraphs in which you:
 
 * Create and discuss quantile residual plots to assess the shape assumption
-* Check for collinearity and influential points
+* Check for collinearity, outliers, and influential points. If any outliers or influential points are identified, identify those points for the reader (what makes these points unusual?)
 
 ### Section 3.3: Inference
 
-Finally, we want to use our fitted regression model to address the research question. Write a couple paragraphs in which you perform a hypothesis test that allows you to address your research question. When testing hypotheses, make sure to:
+Finally, we want to use our fitted regression model to address the research question. Using your fitted model, address your research question by either creating and interpreting a relevant confidence interval, or performing a relevant hypothesis test.
+
+When testing hypotheses, make sure to:
 
 * State the hypotheses in terms of one or more model parameters
 * Calculate a test statistic and p-value
@@ -111,10 +125,7 @@ Provide information on any sources you have used outside the course materials.
 * Cite the original source of your data
 * Cite any articles you have referenced
 * Provide links to any websites you have used for code help
-* If generative AI (Chat GPT, Gemini, etc.) was used to help with any part of the assignment, summarize
-    * The AI tool used
-    * The prompts you used
-    * The help provided by the tool
+* Provide your AI statement
     
 ## Appendix
 
@@ -200,15 +211,16 @@ table(penguins$island, penguins$species) |>
   knitr::kable(caption = "Table 3.2: Penguins by island and species")
 ```
 
-### Writing math in Quarto or R Markdown
+The `gtsummary` package can be used to create a nicely formatted table of model coefficients. For example:
 
-If you want to write mathematical notation, we need to tell Markdown, “Hey, we’re going to make a math symbol!” To do that, you use dollar signs. For instance, to make $\widehat{\beta}_1$, you simply put `$\widehathat{\beta}_1$` into the white space (not a chunk) in youQuarto.
+```{r warning=F}
+library(gtsummary)
+m1 <- glm(sex ~ bill_length_mm + body_mass_g,
+          data = penguins, family = binomial)
 
-Here are some examples of writing math, which you can adapt:
+tbl_regression(m1, 
+               label = list(bill_length_mm = "Bill length (mm)",
+                     body_mass_g = "Body mass (g)"))
+```
 
-| Math | Code |
-| --- | --- |
-| $Y_i \sim Bernoulli(\pi_i)$ | `$Y_i \sim Bernoulli(\pi_i)$` |
-| $\log \left( \dfrac{\pi_i}{1 - \pi_i} \right)$ | `$\log \left( \dfrac{\pi_i}{1 - \pi_i} \right)$` |
-| $\widehat{\pi}_i$ | `$\widehat{\pi}_i$` |
 
