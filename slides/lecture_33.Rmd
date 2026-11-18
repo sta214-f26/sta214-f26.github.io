@@ -1,0 +1,47 @@
+---
+title: "Mixed model wrap-up"
+author: "Ciaran Evans"
+output: beamer_presentation
+---
+
+## Course logistics
+
+* Exam 2 on Friday
+
+\bigskip
+
+* Project Part 3 due on December 4
+
+\bigskip
+
+* Today is the last day of new content! After Thanksgiving, we will use class for project work time
+
+## Warmup
+
+Work on the warmup activity (handout).
+
+\vspace{4cm}
+
+## Warmup
+
+* `Reaction`: reaction time in the task (ms)
+* `Days`: day of the study (number of days of sleep deprivation)
+* `Subject`: the subject ID
+
+**Question:** Propose a model that the researchers could use to investigate the effect of sleep deprivation on reaction time.
+
+\vspace{5cm}
+
+## Warmup
+
+* `lea`: Local Education Authority identifier
+* `school`: School identifier
+* `student`: Student identifier
+* `score`: score on the A-level Chemistry exam
+* `gcse`: score on the GCSE exam
+
+**Question:** Propose a model that the researchers could use to model student scores on the A-level chemistry exam.
+
+\vspace{5cm}
+
+

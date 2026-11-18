@@ -1,0 +1,49 @@
+---
+title: "Impact of AI on Developer Efficiency"
+format: pdf
+---
+
+```{r, include=F}
+library(tidyverse)
+library(lme4)
+library(HLMdiag)
+library(patchwork)
+
+metr_ai <- read_csv("https://cmustatistics.github.io/data-repository/data/metr-ai.csv")
+```
+
+## Abstract
+
+The 
+
+## Introduction
+
+## Data
+
+The data collected in the study consist of 246 different tasks, with the tasks assigned to the 16 different developers participating in the experiment. No tasks were repeated between developers, and each developer completed multiple tasks.
+
+```{r}
+metr_ai |>
+  group_by(dev_id) |>
+  summarize(Tasks = n(),
+            `AI tasks` = sum(ai_treatment),
+            `Mean time no AI` = mean(initial_implementation_time[ai_treatment == 0]),
+            `Mean time AI` = mean(initial_implementation_time[ai_treatment == 1]))
+```
+
+
+```{r message=F, warning=F, echo=F}
+library(gtsummary)
+
+metr_ai |>
+  select(dev_id, predicted_time_no_ai,
+         ai_treatment, initial_implementation_time) |>
+  mutate(dev_id = as.factor(dev_id),
+         ai_treatment = as.factor(ai_treatment)) |>
+  tbl_summary(label =  list(dev_id = "Developer ID",
+                     predicted_time_no_ai = "Estimated time without AI (minutes)",
+                     ai_treatment = "AI use?",
+                     initial_implementation_time = "Task completion time (minutes)")) |>
+  knitr::kable(caption = "")
+```
+

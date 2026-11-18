@@ -1,0 +1,43 @@
+---
+title: "Class activity"
+format: html
+callout-icon: false
+---
+
+**Instructions:** 
+
+* Work individually or with a neighbor to answer the following questions 
+* To get started, download the [class activity template](https://sta214-f26.github.io/class_activities/ca_33_template.qmd) file
+* When you are finished, render the file as an HTML and submit the HTML to Canvas (let me know if you encounter any problems)
+
+# Data 
+
+A 2003 paper by Belenky *et al.* investigates the impact of sleep deprivation on reaction time.  18 volunteers in the study were restricted to 3 hours of time in bed each night, and were monitored over the course of 8 nights. After each night, they were asked to perform a task in which they reacted to a visual stimulus (pressing a button as quickly as possible after the visual stimulus appeared).
+
+The data consist of 144 observations (8 nights for each of the 18 participants), with the following variables:
+
+* `Reaction`: reaction time in the task (ms)
+* `Days`: day of the study (number of days of sleep deprivation)
+* `Subject`: the subject ID
+
+The data can be loaded into R with the following code (the data originally collected data over 10 nights, but the first two days did not involve sleep deprivation, so we will remove them for the purpose of this activity):
+
+```{r, eval=F}
+library(lme4)
+library(tidyverse)
+
+sleep_study <- sleepstudy |>
+  filter(Days >= 2) |>
+  mutate(Days = Days - 2)
+```
+
+
+# Your task
+
+Based on the tools we have learned so far, conduct an analysis to investigate the effect of sleep deprivation on reaction time. This could include EDA, modeling, diagnostics, inference, etc. 
+
+*Note:* I'm not expecting you to finish everything in one class period! Just make a start and do as much as you can. Focus on the pieces for which you feel like you need the most practice.
+
+
+
+
